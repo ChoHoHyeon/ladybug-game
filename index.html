@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>LadyBug Game</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#141016">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root{ --bg:#0b0a0d; --gold:#e9c46a; --text:#f1ece4; --muted:#8f887e; --green:#3ee6a8; --red:#e05563; }
   *{box-sizing:border-box}
@@ -7706,5 +7710,6 @@
   checkDaily(true); checkBroke(); setInterval(() => { checkDaily(false); checkBroke(); }, 60000);
 })();
 </script>
+<script>if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});</script>
 </body>
 </html>

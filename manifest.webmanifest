@@ -1,0 +1,17 @@
+{
+  "name": "LadyBug Game",
+  "short_name": "LadyBug",
+  "description": "태엽 무당벌레가 어느 탈출구로 나갈지 맞히는 퍼즐 베팅 게임",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#141016",
+  "theme_color": "#141016",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
