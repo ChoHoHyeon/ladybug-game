@@ -124,7 +124,7 @@
     </div>
     <div class="msg" id="msg">막대를 탭하면 45° 회전, 끌면 자유 회전. 막대를 다 돌리면 배당이 다시 계산됩니다.</div>
     <div class="opt">
-      <label>난이도 <select id="diff"><option value="easy">쉬움 (XP×1)</option><option value="normal" selected>보통 (XP×1.5)</option><option value="hard">어려움 (XP×2)</option></select></label>
+      <label>난이도 <select id="diff"><option value="easy">쉬움 (XP×1)</option><option value="normal" selected>보통 (XP×1.5)</option><option value="hard">어려움 (배당·XP 1.5~2배)</option></select></label>
       <label>속도 <select id="speed"><option value="0.7">느림</option><option value="1" selected>보통</option><option value="1.4">빠름</option></select></label>
       <label>그래픽 <select id="quality"><option value="auto" selected>자동</option><option value="high">높음</option><option value="mid">보통</option><option value="low">낮음</option></select></label>
       <label>바닥 <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select></label>
@@ -135,6 +135,7 @@
     <div class="help">
       <b>규칙</b><br>
       · 탈출구마다 <b>배당이 고정</b>돼 있습니다(×2·×3·×5). 통로가 좁을수록 배당이 큽니다. 막대를 돌려 원하는 탈출구로 길을 만드세요.<br>
+      · <b>쉬움</b>은 무당벌레가 출발할 방향을 화살표로 보여줍니다. 보통·어려움은 방향이 숨겨져 있고, 어려움에는 돌릴 수 없는 <b>빨간 핀 고정 막대</b>가 2개 있는 대신 <b>배당이 1.5배</b>(×3·×4.5·×7.5)입니다.<br>
       · 막대는 핀에 꽂혀 <b>회전만</b> 됩니다. 다른 막대나 벽에 걸리면 멈춥니다. 랜덤 회전 1코인, 새 판 2코인.<br>
       · 태엽 무당벌레는 <b>무조건 직진</b>합니다. 막히면 밀면서 조금씩 몸을 틀어 빠져나갑니다.<br>
       · 맞히면 <b>베팅 × 배당</b>, 3연승부터 <b>연승 보너스 +10%</b>. 시간 초과는 <b>무효(전액 환불)</b>.<br>
@@ -6816,9 +6817,10 @@
   let bars = [];
   // 막대: 폰에서도 잡기 쉽게 최소 길이 95px·두께 18px. 쉬움은 막대 수를 줄여 갇힘(시간초과)을 줄임
   const DIFF = {
-    easy:   { cols: 3, rows: 3, len: [105, 150], jitter: 30, xp: 1 },
-    normal: { cols: 3, rows: 4, len: [100, 145], jitter: 32, xp: 1.5 },
-    hard:   { cols: 4, rows: 4, len: [95, 130],  jitter: 22, xp: 2 },
+    // count: 막대 수(격자 칸 중 무작위 선택) · showDir: 출발 방향 화살표 · locked: 돌릴 수 없는 고정 막대 수
+    easy:   { cols: 3, rows: 3, count: 6,  len: [90, 120], jitter: 30, xp: 1,   showDir: true, locked: 0 },
+    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, showDir: false, locked: 0 },
+    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   showDir: false, locked: 2, pay: 1.5 },   // 어려움은 배당 1.5배(×3/×4.5/×7.5)
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -6864,11 +6866,13 @@
   function segDist(a, b) { if (segCross(a, b)) return 0; return Math.min(distToSeg(a.x1, a.y1, b), distToSeg(a.x2, a.y2, b), distToSeg(b.x1, b.y1, a), distToSeg(b.x2, b.y2, a)); }
   function barCollides(bar, ang) {
     const e = barEnds({ ...bar, ang });
+    if (distToSeg(CX, CY, e) < BAR_T / 2 + 34) return true;   // 무당벌레 출발 자리(가운데)는 막대가 못 지나감
     for (const o of bars) { if (o === bar) continue; if (segDist(e, barEnds(o)) < BAR_T + 2) return true; }
     for (const s of segments()) { if (!s.bar && segDist(e, s) < (BAR_T + s.t) / 2 + 2) return true; }
     return false;
   }
   function rotateBarTo(bar, target) {
+    if (bar.locked) return false;
     let diff = target - bar.ang;
     while (diff > Math.PI) diff -= Math.PI * 2; while (diff < -Math.PI) diff += Math.PI * 2;
     const step = Math.PI / 90 * Math.sign(diff || 1), n = Math.floor(Math.abs(diff) / Math.abs(step));
@@ -6881,7 +6885,10 @@
     bars.forEach(b => { if (b.mesh) scene.remove(b.mesh); if (b.baseMesh) scene.remove(b.baseMesh); }); bars = [];
     const d = DIFF[$('diff').value] || DIFF.normal;
     const sx = BOARD.w / (d.cols + 1), sy = BOARD.h / (d.rows + 1);
-    for (let i = 1; i <= d.cols; i++) for (let j = 1; j <= d.rows; j++) {
+    const want = d.count - (stage === 'village' ? 1 : 0);   // 돌담길은 돌담이 있으니 막대 1개 덜
+    const cells = []; for (let i = 1; i <= d.cols; i++) for (let j = 1; j <= d.rows; j++) cells.push([i, j]);
+    for (let k = cells.length - 1; k > 0; k--) { const r = Math.floor(Math.random() * (k + 1)); [cells[k], cells[r]] = [cells[r], cells[k]]; }
+    for (const [i, j] of cells) { if (bars.length >= want) break;
       let px = BOARD.x + sx * i + rnd(-d.jitter, d.jitter), py = BOARD.y + sy * j + rnd(-30, 30);
       if (Math.hypot(px - CX, py - CY) < 70) px += (px < CX ? -60 : 60);
       if (stage === 'village') {   // 핀(축)은 돌담에서 충분히 떨어진 곳에만
@@ -6898,9 +6905,10 @@
       bars.push({ px, py, len: L, off, ang: Math.floor(rnd(0, 8)) * Math.PI / 4 });
     }
     bars.forEach(b => { let tries = 0; while (barCollides(b, b.ang) && tries < 40) { b.ang = Math.floor(rnd(0, 8)) * Math.PI / 4; if (++tries % 8 === 0) { b.len *= 0.85; b.off *= 0.85; } } });
+    bars.slice().sort(() => Math.random() - 0.5).slice(0, d.locked || 0).forEach(b => b.locked = true);   // 어려움: 고정 막대
     bars.forEach(b => buildBarMesh(b));
   }
-  function shuffleBars() { bars.forEach(b => rotateBarTo(b, b.ang + rnd(-Math.PI, Math.PI))); }
+  function shuffleBars() { bars.forEach(b => { if (!b.locked) rotateBarTo(b, b.ang + rnd(-Math.PI, Math.PI)); }); }
 
   // ================= THREE 장면 =================
   const cv = $('cv');
@@ -7024,6 +7032,8 @@
   const leafMat = new THREE.MeshPhysicalMaterial({ map: leafTex, roughness: 0.45, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.35 });
   const FLOORS = { felt: feltMatF, leaf: leafMat, dirt: dirtMat };
   const metalMat = new THREE.MeshStandardMaterial({ color: 0x6e4f1c, roughness: 0.42, metalness: 0.85, envMapIntensity: 0.35 });   // 황동
+  const lockedMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.55, metalness: 0.8, envMapIntensity: 0.35 });   // 고정 막대: 무쇠
+  const lockCapMat = new THREE.MeshStandardMaterial({ color: 0xb02020, roughness: 0.4, metalness: 0.3, emissive: 0x400000, emissiveIntensity: 0.4 });   // 고정 표시: 빨간 핀
   const metalHover = new THREE.MeshStandardMaterial({ color: 0xd9b45a, roughness: 0.3, metalness: 1.0, emissive: 0x5a3e0c, emissiveIntensity: 0.6, envMapIntensity: 0.7 });
   const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9902e, roughness: 0.28, metalness: 1.0, envMapIntensity: 0.7 });
   const feltMat = new THREE.MeshStandardMaterial({ color: 0x2a080b, roughness: 1 });
@@ -7079,6 +7089,12 @@
   });
   // 방출 지점 표시
   const ring = new THREE.Mesh(new THREE.RingGeometry(20, 23, 48), new THREE.MeshBasicMaterial({ color: 0xe9c46a, transparent: true, opacity: 0.35 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.6; scene.add(ring);
+  // 쉬움: 출발 방향 화살표 (바닥에 납작하게, +x 방향)
+  const dirArrow = new THREE.Group(); dirArrow.visible = false; scene.add(dirArrow);
+  { const am = new THREE.MeshBasicMaterial({ color: 0xfff1b0, transparent: true, opacity: 0.8, depthWrite: false });
+    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(64, 8), am); shaft.rotation.x = -Math.PI / 2; shaft.position.x = 62; dirArrow.add(shaft);
+    const hs = new THREE.Shape(); hs.moveTo(0, -11); hs.lineTo(20, 0); hs.lineTo(0, 11); hs.closePath();
+    const head = new THREE.Mesh(new THREE.ShapeGeometry(hs), am.clone()); head.rotation.x = -Math.PI / 2; head.position.x = 94; dirArrow.add(head); }
 
   // ================= 무대 전환: 카지노(기본) ↔ 시골 돌담길(Lv.5~) =================
   // 시골 텍스처는 sRGB 변환 없이 그대로 써서 낮 햇빛처럼 밝게 보이도록
@@ -7141,21 +7157,21 @@
   function buildBarMesh(b) {
     const g = new THREE.Group();
     const geo = new THREE.BoxGeometry(b.len, BAR_H, BAR_T); geo.translate(-b.off, 0, 0);
-    const body = new THREE.Mesh(geo, metalMat); body.position.y = BAR_H / 2; body.castShadow = true; body.receiveShadow = true; body.userData.bar = b;
+    const body = new THREE.Mesh(geo, b.locked ? lockedMat : metalMat); body.position.y = BAR_H / 2; body.castShadow = true; body.receiveShadow = true; body.userData.bar = b;
     // 윗면 홈 + 양끝 리벳
     const groove = new THREE.Mesh(new THREE.BoxGeometry(b.len - 6, 0.8, 3), darkBrass); groove.position.set(-b.off, BAR_H + 0.2, 0); groove.userData.bar = b;
     [-1, 1].forEach(sd => { const rv = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 1.2, 10), darkBrass); rv.position.set(-b.off + sd * (b.len / 2 - 5), BAR_H + 0.6, 0); rv.userData.bar = b; g.add(rv); });
     // 톱니바퀴 핀 (막대와 함께 회전)
     const gb = new THREE.Mesh(gearBig, darkBrass); gb.position.y = BAR_H + 0.4; gb.castShadow = true; gb.userData.bar = b;
     const gs = new THREE.Mesh(gearSmall, metalMat); gs.position.y = BAR_H + 3.8; gs.rotation.y = Math.PI / 8; gs.userData.bar = b;
-    const pin = new THREE.Mesh(pinGeo, goldMat); pin.position.y = (BAR_H + 9) / 2; pin.castShadow = true; pin.userData.bar = b;
-    const cap = new THREE.Mesh(capGeo, goldMat); cap.position.y = BAR_H + 9; cap.userData.bar = b;
+    const pin = new THREE.Mesh(pinGeo, b.locked ? lockCapMat : goldMat); pin.position.y = (BAR_H + 9) / 2; pin.castShadow = true; pin.userData.bar = b;
+    const cap = new THREE.Mesh(capGeo, b.locked ? lockCapMat : goldMat); cap.position.y = BAR_H + 9; cap.userData.bar = b;
     // 바닥 받침 톱니(고정, 회전 안 함) — 별도 메시로 scene에 직접
     const base = new THREE.Mesh(gearGeo(8, 10, 1.6), darkBrass); base.position.set(b.px, 0.3, b.py); base.receiveShadow = true; scene.add(base); b.baseMesh = base;
     g.add(body, groove, gb, gs, pin, cap); g.position.set(b.px, 0, b.py); scene.add(g);
     b.mesh = g; b.body = body; syncBar(b);
   }
-  function syncBar(b) { b.mesh.rotation.y = -b.ang; b.body.material = b.hover ? metalHover : metalMat; }
+  function syncBar(b) { b.mesh.rotation.y = -b.ang; b.body.material = b.locked ? lockedMat : b.hover ? metalHover : metalMat; }
 
   // ================= 태엽 무당벌레 (3D) =================
   const BS = 1.25;   // 무당벌레 크기 배율
@@ -7544,7 +7560,7 @@
     computeOdds(); updateOddsUI(); if (oddsN < ODDS_TARGET) oddsJob = setTimeout(oddsTick, 0);
   }
   // 배당은 탈출구마다 고정(×2/×3/×5) — 막대를 돌려 길을 만드는 것이 곧 실력
-  function invalidateOdds() { if (oddsJob) clearTimeout(oddsJob); oddsJob = null; odds = {}; EXITS.forEach(e => odds[e.n] = e.mult); oddsN = ODDS_TARGET; oddsTO = 0; updateOddsUI(); }
+  function invalidateOdds() { if (oddsJob) clearTimeout(oddsJob); oddsJob = null; odds = {}; EXITS.forEach(e => odds[e.n] = e.mult * ((DIFF[curDiff] || DIFF.normal).pay || 1)); oddsN = ODDS_TARGET; oddsTO = 0; updateOddsUI(); }
   function pauseOdds() { oddsPaused = true; if (oddsJob) { clearTimeout(oddsJob); oddsJob = null; } }
   function fmtOdds(n) { const v = odds[n]; return v ? '×' + (Number.isInteger(v) ? v : v >= 10 ? Math.round(v) : v.toFixed(1)) : '×…'; }
   function updateOddsUI() {
@@ -7590,7 +7606,8 @@
     hideOverlay(); refreshUI(); if (betAmt > coins || !oddsReady()) return;
     pauseOdds(); betOdds = odds[selExit]; S.allIn = betAmt >= 10 && betAmt === coins;
     coins -= betAmt; save(); phase = 'winding'; windT = 0; lastExit = 0; particles.forEach(p => scene.remove(p.m)); particles = [];
-    bug = spawnBug(); setExpr('mischief'); snd.windup(); acc = 0;
+    { const keepAng = bug && (DIFF[curDiff] || DIFF.normal).showDir ? bug.ang : null; bug = spawnBug(); if (keepAng !== null) { bug.ang = keepAng; updateBody(bug); } }   // 쉬움: 보여준 방향 그대로 출발
+    setExpr('mischief'); snd.windup(); acc = 0;
     setMsg(`${selExit}번 탈출구(${fmtOdds(selExit)})에 ${betAmt}코인 베팅! 태엽 무당벌레 방출...`); refreshUI();
   }
   const coinGeo = new THREE.CylinderGeometry(4, 4, 1.2, 16);
@@ -7649,7 +7666,8 @@
   let drag = null, camDrag = null;
   cv.addEventListener('pointerdown', ev => {
     if (ev.button === 2) return;
-    const b = phase === 'idle' ? pickBar(ev) : null;
+    let b = phase === 'idle' ? pickBar(ev) : null;
+    if (b && b.locked) { setMsg('빨간 핀 막대는 고정돼 있어 돌릴 수 없어요.'); snd.click(); b = null; return; }
     cv.setPointerCapture(ev.pointerId);
     if (b) { const p = groundPt(ev) || { x: b.px, y: b.py }; drag = { bar: b, sx: ev.clientX, sy: ev.clientY, startAng: b.ang, moved: false, grabAng: Math.atan2(p.y - b.py, p.x - b.px) }; b.hover = true; syncBar(b); }
     else if (!isPortrait()) camDrag = { sx: ev.clientX, sy: ev.clientY, yaw: camYaw, pitch: camPitch };
@@ -7662,14 +7680,14 @@
     }
     if (camDrag) { camYaw = Math.max(-0.45, Math.min(0.45, camDrag.yaw - (ev.clientX - camDrag.sx) * 0.005)); camPitch = Math.max(0.75, Math.min(1.35, camDrag.pitch + (ev.clientY - camDrag.sy) * 0.004)); placeCamera(); return; }
     if (phase !== 'idle') return;
-    const hb = pickBar(ev); bars.forEach(b => { const h = b === hb; if (h !== !!b.hover) { b.hover = h; syncBar(b); } }); cv.style.cursor = hb ? 'grab' : 'default';
+    let hb = pickBar(ev); if (hb && hb.locked) hb = null; bars.forEach(b => { const h = b === hb; if (h !== !!b.hover) { b.hover = h; syncBar(b); } }); cv.style.cursor = hb ? 'grab' : 'default';
   });
   const endDrag = () => {
     if (drag) { snd.click(); if (!drag.moved) { if (!rotateBarTo(drag.bar, drag.bar.ang + Math.PI / 4)) setMsg('막대가 다른 장애물에 걸려 더 돌아가지 않습니다.'); } drag.bar.hover = false; syncBar(drag.bar); drag = null; invalidateOdds(); }
     camDrag = null;
   };
   cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
-  cv.addEventListener('contextmenu', ev => { ev.preventDefault(); if (phase !== 'idle') return; const b = pickBar(ev); if (b) { rotateBarTo(b, b.ang - Math.PI / 4); syncBar(b); invalidateOdds(); } });
+  cv.addEventListener('contextmenu', ev => { ev.preventDefault(); if (phase !== 'idle') return; const b = pickBar(ev); if (b && !b.locked) { rotateBarTo(b, b.ang - Math.PI / 4); syncBar(b); invalidateOdds(); } });
   cv.addEventListener('wheel', ev => { ev.preventDefault(); camDist = Math.max(camMin, Math.min(camMax, camDist + ev.deltaY * 0.6)); placeCamera(); }, { passive: false });
 
   // ================= 루프 =================
@@ -7700,7 +7718,10 @@
     } else if (phase === 'idle' && !hintReset && (hint.textContent.startsWith('남은') || hint.textContent.startsWith('경과'))) {
       hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = '막대 클릭 = 시계방향 45° · 우클릭 = 반시계 · 드래그 = 자유 회전 · 빈 곳 드래그 = 시점 회전 · 휠 = 확대'; }, 1500);
     }
-    if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9; }   // 멈춘 뒤엔 미세하게만
+    if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9;
+      if (!(DIFF[curDiff] || DIFF.normal).showDir) { bug.ang += dt * 0.8; updateBody(bug); } }   // 보통·어려움: 방향을 숨기려고 제자리에서 천천히 빙글
+    { const show = !!bug && phase === 'idle' && !oOn && (DIFF[curDiff] || DIFF.normal).showDir; dirArrow.visible = show;
+      if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children.forEach(m => m.material.opacity = 0.7 + Math.sin(now * 0.006) * 0.25); } }   // 멈춘 뒤엔 미세하게만
     syncBug();
     particles.forEach(p => { p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt; p.vy -= 420 * dt; p.m.rotation.x += p.rx * dt; p.m.rotation.z += p.rz * dt; p.life -= dt; if (p.m.position.y < 2) { p.m.position.y = 2; p.vy *= -0.35; p.vx *= 0.8; p.vz *= 0.8; } });
     particles.filter(p => p.life <= 0).forEach(p => scene.remove(p.m)); particles = particles.filter(p => p.life > 0);
@@ -7711,6 +7732,14 @@
   $('quality').onchange = setupPost;
   $('floor').onchange = () => { if (stage !== 'village') dirt.material = FLOORS[$('floor').value]; };
   window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(fitView, 150); });
+  // 개발용 시뮬레이션 훅 (주소 뒤에 ?sim 을 붙였을 때만)
+  if (location.search.indexOf('sim') >= 0) window.__lb = {
+    setDiff(v) { $('diff').value = v; curDiff = v; makeBoard(); }, bars: () => bars, stage: v => applyStage(v),
+    rot(b, a) { return rotateBarTo(b, a); },
+    play(n, ang) { const keep = bug; SIM = true; segCache = null; segCache = segments(); const cnt = [0, 0, 0, 0, 0, 0, 0]; let to = 0;
+      for (let i = 0; i < n; i++) { bug = spawnBug(); if (ang != null) { bug.ang = ang; updateBody(bug); } let t = 0, ex = 0; while (t < 45 && !ex) { ex = stepBug(1 / 60); t += 1 / 60; } if (ex) cnt[ex]++; else to++; }
+      SIM = false; segCache = null; bug = keep; return { cnt, to }; },
+  };
   fitView(); applyKeyTier(S.level); applyStage(S.level >= VILLAGE_LV ? 'village' : 'casino'); makeBoard(); bug = spawnBug(); setExpr('happy'); invalidateOdds(); refreshUI(); requestAnimationFrame(loop);
   checkDaily(true); checkBroke(); setInterval(() => { checkDaily(false); checkBroke(); }, 60000);
 })();
