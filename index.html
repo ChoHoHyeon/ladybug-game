@@ -7496,7 +7496,7 @@
     $('otitle').textContent = title; $('otitle').className = 'otitle ' + (cls || ''); $('osub').innerHTML = sub || '';
     setExpr(expr, oface); drawMouth(EXPR[expr].mouth); oPose = pose; oT = 0; oOn = true; overlay.classList.add('show'); playOverlayVideo(vkey || pose);
   }
-  function hideOverlay() { oOn = false; overlay.classList.remove('show'); ovideo.pause(); if (bug && phase === 'idle') { bug = spawnBug(); setExpr('happy'); } if (noteQ.length) setTimeout(nextNote, 250); }
+  function hideOverlay() { const was = oOn; oOn = false; overlay.classList.remove('show'); ovideo.pause(); if (was && bug && phase === 'idle') { bug = spawnBug(); setExpr('happy'); } if (noteQ.length) setTimeout(nextNote, 250); }   // 결과창이 실제로 떠 있을 때만 무당벌레를 새로 세움(안 그러면 시작 순간 방향이 바뀜)
   $('obtn').onclick = hideOverlay; overlay.addEventListener('pointerdown', ev => { if (ev.target === overlay) hideOverlay(); });
   function renderOverlay(dt) {
     if (!oOn || ovid.classList.contains('hasvid')) return; oT += dt;
@@ -7551,7 +7551,10 @@
   function save() { S.coins = coins; S.rec.maxCoins = Math.max(S.rec.maxCoins, coins); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
   const dayStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   // ── 레벨 ──
-  const xpNeed = lv => 40 + lv * 20;
+  // 레벨 곡선: Lv1→2 는 3~5판, 이후 25XP씩 늘어남 (Lv5 ≈ 25판, Lv10 ≈ 100판)
+  const xpNeed = lv => 40 + (lv - 1) * 25;
+  // 한 판 경험치 = (기본 10 + 승리 4 + 베팅 코인 절반(최대 10)) × 난이도 배수 → 쉬움 10~24, 보통 15~36, 어려움 20~48
+  const xpFor = (win, bet, dx) => Math.round((10 + (win ? 4 : 0) + Math.min(bet, 20) * 0.5) * dx);
   // ── 업적 ──
   const ACH = [
     { id: 'first_win', name: '첫 승리', reward: 10 },
@@ -7687,13 +7690,16 @@
     if (!selExit) { goBtn.disabled = true; goBtn.textContent = '탈출구를 선택하세요'; return; }
     goBtn.disabled = false; goBtn.textContent = `${selExit}번(${fmtOdds(selExit)})에 ${betAmt}코인 → 방출!`;
   }
+  let pressAng = null, pressT = 0;   // 시작 버튼에 손가락이 닿은 순간의 방향(탭 지연 보정)
+  goBtn.addEventListener('pointerdown', () => { if (bug && phase === 'idle') { pressAng = bug.ang; pressT = performance.now(); } });
   function startRound() {
+    const startAng = bug ? (pressAng !== null && performance.now() - pressT < 600 ? pressAng : bug.ang) : null; pressAng = null;   // 누른 순간 방향 고정
     segCache = null; segCache = segments();
     if (phase !== 'idle' || !selExit) return;
     hideOverlay(); refreshUI(); if (betAmt > coins || !oddsReady()) return;
     pauseOdds(); betOdds = odds[selExit]; S.allIn = betAmt >= 10 && betAmt === coins;
     coins -= betAmt; save(); phase = 'winding'; windT = 0; lastExit = 0; particles.forEach(p => scene.remove(p.m)); particles = [];
-    { const keepAng = bug ? bug.ang : null; bug = spawnBug(); if (keepAng !== null) { bug.ang = keepAng; updateBody(bug); } }   // 시작 누른 순간 바라보던 방향 그대로 출발(타이밍)
+    bug = spawnBug(); if (startAng !== null) { bug.ang = startAng; updateBody(bug); }   // 시작 누른 순간 바라보던 방향 그대로 출발(타이밍)
     setExpr('mischief'); snd.windup(); acc = 0;
     if (isPortrait()) document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });   // 폰: 시작하면 게임판으로 올라가기
     setMsg(`${selExit}번 탈출구(${fmtOdds(selExit)})에 ${betAmt}코인 베팅! 태엽 무당벌레 방출...`); refreshUI();
@@ -7706,7 +7712,8 @@
     if (timeout) {
       coins += betAmt;
       setMsg(`⏱ 시간 초과 — 무효 판, ${betAmt}코인 환불`); addLog(`무효(시간초과) ${selExit}번 / 환불`); snd.lose();
-      showOverlay('무효 판', `무당벌레가 길을 못 찾았어요<br>베팅한 <b>${betAmt}코인</b>을 돌려드려요`, '', 'sleep', 'sleep', 'sleep');
+      showOverlay('무효 판', `무당벌레가 길을 못 찾았어요<br>베팅한 <b>${betAmt}코인</b>을 돌려드려요 · 경험치 +${Math.round(5 * dx)}`, '', 'sleep', 'sleep', 'sleep');
+      gainXp(Math.round(5 * dx));
     } else {
       S.rec.rounds++;
       if (exitN === selExit) {
@@ -7722,12 +7729,12 @@
         for (let i = 0; i < 36; i++) { const m = new THREE.Mesh(coinGeo, goldMat); m.position.set(px, 30, g.cy); m.castShadow = true; scene.add(m); particles.push({ m, vx: rnd(-90, 90), vy: rnd(120, 260), vz: rnd(-90, 90), life: rnd(1.2, 2.2), rx: rnd(-6, 6), rz: rnd(-6, 6) }); }
         unlock('first_win'); if (EXITS[selExit - 1].mult === 5) { S.rec.x5 = (S.rec.x5 || 0) + 1; unlock('odds5'); if (S.rec.x5 >= 3) unlock('odds10'); if (S.rec.x5 >= 10) unlock('odds20'); }
         if (S.winStreak >= 3) unlock('streak3'); if (S.winStreak >= 5) unlock('streak5'); if (S.allIn) unlock('allin'); if (curDiff === 'hard') unlock('hard_win');
-        gainXp(betAmt * dx + 5);
+        S.lastXp = xpFor(true, betAmt, dx); gainXp(S.lastXp);
       } else {
         S.winStreak = 0;
         setMsg(`✗ ${exitN}번으로 탈출 — ${betAmt}코인 회수`, 'lose'); addLog(`실패 ${exitN}번 탈출 (베팅 ${selExit}번) / -${betAmt}`); snd.lose();
-        showOverlay('아쉽네요', `${exitN}번으로 나갔어요 (베팅 ${selExit}번)<br>${betAmt}코인 회수 · 경험치 +${Math.round(betAmt * dx)}`, 'lose', 'lose', 'lose');
-        gainXp(betAmt * dx);
+        showOverlay('아쉽네요', `${exitN}번으로 나갔어요 (베팅 ${selExit}번)<br>${betAmt}코인 회수 · 경험치 +${xpFor(false, betAmt, dx)}`, 'lose', 'lose', 'lose');
+        gainXp(xpFor(false, betAmt, dx));
       }
       if (S.rec.rounds >= 50) unlock('rounds50'); if (S.rec.rounds >= 200) unlock('rounds200');
     }
@@ -7823,7 +7830,7 @@
   // 개발용 시뮬레이션 훅 (주소 뒤에 ?sim 을 붙였을 때만)
   if (location.search.indexOf('sim') >= 0) window.__lb = {
     setDiff(v) { $('diff').value = v; curDiff = v; makeBoard(); }, bars: () => bars, stage: v => applyStage(v),
-    rot(b, a) { return rotateBarTo(b, a); },
+    rot(b, a) { return rotateBarTo(b, a); }, ang: () => bug && bug.ang, phase: () => phase,
     play(n, ang, sd) { const keep = bug; SIM = true; segCache = null; segCache = segments(); const cnt = [0, 0, 0, 0, 0, 0, 0]; let to = 0;
       const gauss = () => Math.sqrt(-2 * Math.log(Math.random() || 1e-9)) * Math.cos(2 * Math.PI * Math.random());
       for (let i = 0; i < n; i++) { bug = spawnBug(); if (ang != null) { bug.ang = ang + (sd ? gauss() * sd : 0); updateBody(bug); } let t = 0, ex = 0; while (t < 45 && !ex) { ex = stepBug(1 / 60); t += 1 / 60; } if (ex) cnt[ex]++; else to++; }
