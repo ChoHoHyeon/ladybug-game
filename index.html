@@ -9,18 +9,40 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-  :root{ --bg:#0b0a0d; --gold:#e9c46a; --text:#f1ece4; --muted:#8f887e; --green:#3ee6a8; --red:#e05563; }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:radial-gradient(1200px 700px at 50% 0%,#1d1720 0%,var(--bg) 60%);color:var(--text);font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;}
-  header{padding:14px 16px 2px;text-align:center}
-  header h1{margin:0;font-size:26px;letter-spacing:3px;font-weight:800;background:linear-gradient(#fff2c4,#e9c46a 50%,#a8842e);-webkit-background-clip:text;background-clip:text;color:transparent}
-  header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  :root{ --bg:#0b0a0d; --gold:#e9c46a; --gold2:#f7dc8f; --gold3:#a8842e; --text:#f1ece4; --muted:#8f887e; --green:#3ee6a8; --red:#e05563; --line:rgba(233,196,106,.22); --card:linear-gradient(180deg,#1d1920,#121015); }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:radial-gradient(1200px 700px at 50% 0%,#1d1720 0%,var(--bg) 60%);color:var(--text);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;}
+  button{font-family:inherit}
+  /* 상단 바: 제목 + 아이콘 */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:1170px;margin:0 auto;padding:12px 16px 4px}
+  .topbar h1{margin:0;font-size:24px;letter-spacing:2px;font-weight:800;font-family:Georgia,"Times New Roman",serif;background:linear-gradient(#fff2c4,#e9c46a 50%,#a8842e);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+  .topbar h1 span{font-weight:400;font-style:italic}
+  .tools{display:flex;gap:8px}
+  .ibtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;
+        background:radial-gradient(circle at 50% 30%,#2a2430,#141117);border:1px solid rgba(233,196,106,.45);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 4px 12px rgba(0,0,0,.45);transition:.15s}
+  .ibtn:hover{border-color:var(--gold);box-shadow:0 0 12px rgba(233,196,106,.35)}
+  .ibtn:active{transform:scale(.94)}
+  .ibtn svg{width:20px;height:20px;fill:none;stroke:var(--gold);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .ibtn svg .dot{fill:var(--gold)}
+  .ibtn svg .mute{display:none}
+  .ibtn.off svg .w1,.ibtn.off svg .w2{display:none}
+  .ibtn.off svg .mute{display:inline;stroke:#e07070}
+  .ibtn.off{border-color:rgba(160,150,140,.35)}
   .wrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start;padding:10px 12px 30px}
-  .stage{position:relative;width:820px;max-width:100%}
+  .stage{position:relative;width:820px;max-width:100%;scroll-margin-top:8px}
   #cv{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px #2a2530;touch-action:none}
-  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px)}
+  /* 새 판: 게임판 오른쪽 아래 둥근 버튼 */
+  .newboard{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
+        background:rgba(18,15,21,.78);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.5);color:var(--text);font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:.15s;z-index:3}
+  .newboard svg{width:16px;height:16px;fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .newboard em{font-style:normal;font-size:11px;color:#2a1a05;background:linear-gradient(#f7dc8f,#c99a32);border-radius:999px;padding:1px 7px}
+  .newboard em::after{content:"코인";margin-left:1px}
+  .newboard:active{transform:scale(.95)}
+  .newboard[disabled]{opacity:0;pointer-events:none}
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
   .overlay.show{display:flex}
-  .ob{background:rgba(20,16,22,.82);border:1px solid rgba(233,196,106,.45);border-radius:18px;padding:14px 22px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);min-width:320px}
+  .ob{background:rgba(20,16,22,.86);border:1px solid rgba(233,196,106,.45);border-radius:18px;padding:14px 22px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);min-width:320px}
   .ob canvas{display:block;margin:0 auto}
   .ovid{position:relative;width:300px;margin:0 auto}
   .ovid video{display:none;width:300px;height:300px;border-radius:14px;object-fit:cover;background:#111}
@@ -28,126 +50,155 @@
   .otitle{font-size:26px;font-weight:800;color:var(--gold);text-shadow:0 0 16px rgba(233,196,106,.4);margin-top:-6px}
   .otitle.win{color:var(--green)} .otitle.lose{color:#ff8a94}
   .osub{font-size:14px;color:#d9d2c6;margin-top:6px;line-height:1.5}
-  .obtn{margin-top:12px;padding:9px 26px;border:none;border-radius:10px;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;font-weight:800;font-size:14px;cursor:pointer}
-  .hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;color:#b9b2a6;text-shadow:0 1px 3px #000;pointer-events:none}
-  .panel{background:linear-gradient(#1c1920,#131117);border:1px solid #2c2731;border-radius:14px;padding:16px;width:310px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
-  .panel h2{margin:0 0 10px;font-size:13px;letter-spacing:2px;color:var(--gold);border-bottom:1px solid #2c2731;padding-bottom:8px}
-  .coins{font-size:34px;font-weight:800;color:var(--gold);text-align:center;margin:2px 0 12px;text-shadow:0 0 18px rgba(233,196,106,.35)}
-  .coins small{font-size:13px;color:var(--muted);font-weight:normal;margin-left:4px}
-  .exits{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
-  .exit-btn{background:linear-gradient(#6e1c22,#4a1116);border:2px solid #2d0a0d;color:#fff;border-radius:10px;padding:9px 4px;cursor:pointer;font-size:13px;line-height:1.25;transition:.15s}
-  .exit-btn b{display:block;font-size:19px;color:var(--gold);font-family:Georgia,serif}
-  .exit-btn.lucky{border-color:#5fd38a;box-shadow:0 0 12px rgba(95,211,138,.45)}
-  .exit-btn.sel{border-color:var(--gold);background:linear-gradient(#a8323a,#6e1c22);box-shadow:0 0 14px rgba(233,196,106,.45);transform:translateY(-1px)}
-  .exit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-  .row{display:flex;gap:6px;align-items:center;margin:8px 0}
-  .row label{font-size:12px;color:var(--muted);min-width:56px}
-  input[type=number]{width:66px;background:#0b0a0d;border:1px solid #3a3540;color:var(--text);padding:7px;border-radius:8px;font-size:15px;text-align:center}
-  .chip{background:#26222b;border:1px solid #3a3540;color:var(--text);border-radius:8px;padding:6px 9px;cursor:pointer;font-size:12px}
-  .chip:hover{background:#342f3a}
-  button.main{width:100%;padding:13px;font-size:16px;font-weight:800;border:none;border-radius:10px;cursor:pointer;margin-top:6px;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;box-shadow:0 6px 18px rgba(233,196,106,.25)}
-  button.main:disabled{background:#2a262f;color:#6a655f;box-shadow:none;cursor:not-allowed}
-  .btns{display:flex;gap:6px;margin-top:6px}
-  button.sub{flex:1;padding:9px 4px;font-size:12px;border:1px solid #3a3540;background:#221e27;color:var(--text);border-radius:9px;cursor:pointer}
-  button.sub:hover{background:#2e2934}
-  .msg{min-height:46px;margin-top:10px;padding:9px;border-radius:9px;background:#0b0a0d;font-size:14px;text-align:center;border:1px solid #221e27}
-  .msg.win{color:var(--green);font-weight:700;border-color:rgba(62,230,168,.4)}
-  .msg.lose{color:var(--red);font-weight:700;border-color:rgba(224,85,99,.4)}
-  .log{font-size:12px;color:var(--muted);max-height:110px;overflow:auto;margin-top:8px;line-height:1.5}
-  .log div{border-bottom:1px dashed #26222b;padding:2px 0}
-  .help{font-size:12px;color:var(--muted);line-height:1.65;margin-top:10px}
-  .help b{color:var(--text)}
-  .opt{font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
-  .opt select{background:#0b0a0d;color:var(--text);border:1px solid #3a3540;border-radius:6px;padding:4px}
-  .prof{display:flex;align-items:center;gap:8px;margin:-2px 0 8px}
-  .lv{background:linear-gradient(#3a2a12,#22180a);border:1px solid #6b5222;color:var(--gold);font-weight:800;font-size:13px;border-radius:8px;padding:3px 8px;white-space:nowrap}
-  .xpbar{flex:1;height:8px;background:#0b0a0d;border:1px solid #2c2731;border-radius:6px;overflow:hidden}
+  .obtn{margin-top:12px;padding:10px 28px;border:none;border-radius:12px;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 16px rgba(233,196,106,.25)}
+  .hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:13px;font-weight:700;color:#f1e6c8;text-shadow:0 1px 4px #000;pointer-events:none}
+  /* 베팅 패널 */
+  .panel{background:var(--card);border:1px solid #2c2731;border-radius:18px;padding:16px;width:330px;box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
+  .prof{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+  .lv{background:linear-gradient(#3a2a12,#22180a);border:1px solid #6b5222;color:var(--gold);font-weight:800;font-size:13px;border-radius:8px;padding:3px 9px;white-space:nowrap}
+  .xpbar{flex:1;height:6px;background:#0b0a0d;border:1px solid #2c2731;border-radius:6px;overflow:hidden}
   .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a8842e,#f7dc8f);transition:width .4s}
   .xptxt{font-size:11px;color:var(--muted);white-space:nowrap}
-  .keytier{font-size:11px;color:var(--muted);text-align:center;margin:-8px 0 10px}
-  .oddsinfo{font-size:11px;color:var(--muted);text-align:center;margin:-4px 0 8px;min-height:15px}
-  .exit-btn small{display:block;font-size:10px;color:#d9c9a8;opacity:.8}
+  .coins{font-size:38px;font-weight:800;color:var(--gold);text-align:center;margin:4px 0 0;font-family:Georgia,serif;text-shadow:0 0 18px rgba(233,196,106,.35)}
+  .coins small{font-size:13px;color:var(--muted);font-weight:normal;margin-left:5px;font-family:inherit}
+  .keytier{font-size:11px;color:var(--muted);text-align:center;margin:0 0 10px;letter-spacing:.5px}
+  .oddsinfo{font-size:12px;color:#bfe9cf;text-align:center;margin:0 0 10px;min-height:16px}
+  .exits{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .exit-btn{background:linear-gradient(#6e1c22,#4a1116);border:1.5px solid #2d0a0d;color:#f4e9e2;border-radius:12px;padding:10px 4px;cursor:pointer;font-size:13px;line-height:1.25;transition:.15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .exit-btn b{display:block;font-size:21px;color:var(--gold);font-family:Georgia,serif}
+  .exit-btn.lucky{border-color:#5fd38a;box-shadow:0 0 12px rgba(95,211,138,.45)}
+  .exit-btn.sel{border-color:var(--gold);background:linear-gradient(#a8323a,#6e1c22);box-shadow:0 0 16px rgba(233,196,106,.5);transform:translateY(-1px)}
+  .exit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  /* 베팅 수량: − 숫자 + / MAX */
+  .bet{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .blabel{font-size:12px;color:var(--muted);letter-spacing:1px}
+  .stepper{flex:1;display:flex;align-items:center;height:46px;border-radius:999px;background:#0b0a0d;border:1px solid var(--line);box-shadow:inset 0 2px 6px rgba(0,0,0,.6);overflow:hidden}
+  .stepper input{flex:1;min-width:0;width:100%;height:100%;background:transparent;border:none;color:var(--gold);font-size:22px;font-weight:800;text-align:center;font-family:Georgia,serif;outline:none;-moz-appearance:textfield}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .chip{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  .chip.step{width:46px;height:46px;border:none;background:transparent;color:var(--gold);font-size:26px;line-height:1}
+  .chip.step:active{background:rgba(233,196,106,.12)}
+  .chip.maxb{height:46px;padding:0 14px;border-radius:999px;border:1px solid rgba(233,196,106,.55);background:linear-gradient(#2c2418,#18130c);color:var(--gold);font-weight:800;font-size:13px;letter-spacing:1px}
+  .chip.maxb:active{transform:scale(.95)}
+  button.main{width:100%;padding:15px;font-size:17px;font-weight:800;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;box-shadow:0 8px 22px rgba(233,196,106,.28),inset 0 1px 0 rgba(255,255,255,.5);letter-spacing:.5px}
+  button.main:disabled{background:#26222b;color:#77716a;box-shadow:none;cursor:not-allowed}
+  .msg{min-height:20px;margin-top:10px;font-size:13px;text-align:center;color:var(--muted)}
+  .msg.win{color:var(--green);font-weight:700}
+  .msg.lose{color:#ff8a94;font-weight:700}
   .toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(20,16,22,.92);border:1px solid rgba(233,196,106,.6);color:var(--gold);padding:8px 16px;border-radius:12px;font-size:14px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;z-index:5}
   .toast.on{opacity:1}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+  /* 모달(설정·게임 방법·기록) */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
   .modal.show{display:flex}
-  .mbox{background:linear-gradient(#1c1920,#131117);border:1px solid #3a3020;border-radius:16px;padding:16px 18px;width:min(420px,100%);max-height:86vh;overflow:auto}
-  .mbox h3{margin:0 0 10px;color:var(--gold);font-size:16px}
+  .mbox{background:var(--card);border:1px solid rgba(233,196,106,.35);border-radius:20px;padding:18px 18px 16px;width:min(420px,100%);max-height:86vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+  .mbox h3{margin:0 0 14px;color:var(--gold);font-size:18px;letter-spacing:1px;font-family:Georgia,serif;text-align:center}
+  .mbox h4{margin:14px 0 4px;color:var(--gold);font-size:13px;letter-spacing:1px}
+  .mbox .obtn{width:100%;margin-top:16px}
+  .sgroup{margin-bottom:14px}
+  .slabel{font-size:12px;color:#cfc6b8;margin-bottom:6px;letter-spacing:.5px}
+  .slabel small{color:var(--muted);margin-left:6px;font-size:11px}
+  .seg{display:flex;background:#0b0a0d;border:1px solid #2c2731;border-radius:12px;padding:3px;gap:3px}
+  .seg button{flex:1;padding:9px 4px;border:none;border-radius:9px;background:transparent;color:#bdb5a8;font-size:13px;font-weight:700;cursor:pointer;line-height:1.25}
+  .seg button small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:2px}
+  .seg button.on{background:linear-gradient(#f7dc8f,#c99a32);color:#2a1a05;box-shadow:0 2px 8px rgba(233,196,106,.3)}
+  .seg button.on small{color:#4a3510}
+  .seg.dis{opacity:.4;pointer-events:none}
+  .help{font-size:13px;line-height:1.7;color:#cfc6b8}
+  .help ol{margin:0;padding-left:20px} .help li{margin-bottom:6px}
+  .help p{margin:0} .help b{color:var(--text)}
   .rec{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:13px;margin-bottom:14px}
   .rec span:nth-child(odd){color:var(--muted)}
   .ach{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px dashed #2c2731}
   .ach.off{opacity:.45}
   .ach em{font-style:normal;color:var(--gold);white-space:nowrap}
   @media (max-width:760px){
-    header{padding:8px 10px 0} header h1{font-size:22px} header p{display:none}
-    .wrap{flex-direction:column;align-items:stretch;gap:10px;padding:6px 8px 90px}
+    .topbar{padding:10px 12px 2px} .topbar h1{font-size:21px;letter-spacing:1px}
+    .tools{gap:6px} .ibtn{width:36px;height:36px}
+    .wrap{flex-direction:column;align-items:stretch;gap:10px;padding:6px 8px 24px}
     .stage{width:100%}
-    .panel{width:100%;padding:12px}
-    .panel h2{display:none}
-    .coins{font-size:28px;margin:0 0 8px}
+    .panel{width:100%;padding:14px}
+    .coins{font-size:32px}
     .exit-btn{padding:12px 4px;font-size:14px}
-    .exit-btn b{font-size:20px}
-    button.main{position:sticky;bottom:8px;z-index:4;padding:16px;font-size:17px}
+    .exit-btn b{font-size:22px}
+    button.main{padding:17px;font-size:17px}
     .ob{min-width:0;width:92%;padding:12px}
     .ovid{width:min(300px,70vw)} .ovid video{width:min(300px,70vw);height:min(300px,70vw)}
-    .hint{font-size:11px}
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>LadyBug Game</h1>
-  <p>핀에 꽂힌 막대를 돌려 길을 만들고, 태엽 무당벌레가 나올 탈출구에 베팅하세요</p>
+<header class="topbar">
+  <h1>LadyBug <span>Game</span></h1>
+  <div class="tools">
+    <button class="ibtn" id="sndBtn" title="소리 켜기/끄기" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="mute" d="M16 9l5 6M21 9l-5 6"/></svg></button>
+    <button class="ibtn" id="helpBtn" title="게임 방법" aria-label="게임 방법"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .8-1 1.5v.6"/><circle class="dot" cx="12" cy="16.9" r=".6"/></svg></button>
+    <button class="ibtn" id="recBtn" title="기록·업적" aria-label="기록·업적"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/></svg></button>
+    <button class="ibtn" id="setBtn" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.2"/></svg></button>
+  </div>
 </header>
 
 <div class="wrap">
-  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div></div>
+  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div>
+    <button class="newboard" id="newBoardBtn" title="핀 위치를 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
+  </div>
 
   <div class="panel">
-    <h2>BETTING</h2>
     <div class="prof"><span class="lv" id="lvTxt">Lv.1</span><div class="xpbar"><i id="xpFill"></i></div><span class="xptxt" id="xpTxt">0/50</span></div>
     <div class="coins"><span id="coins">0</span><small>코인</small></div>
     <div class="keytier" id="keyTier">구리 태엽</div>
-    <div class="oddsinfo" id="oddsInfo">배당 계산 중…</div>
+    <div class="oddsinfo" id="oddsInfo"></div>
     <div class="exits" id="exitBtns"></div>
-    <div class="row">
-      <label>베팅 코인</label>
-      <input type="number" id="bet" min="1" value="1">
-      <button class="chip" data-add="-5">-5</button>
-      <button class="chip" data-add="-1">-1</button>
-      <button class="chip" data-add="1">+1</button>
-      <button class="chip" data-add="5">+5</button>
-      <button class="chip" data-add="all">올인</button>
+    <div class="bet">
+      <span class="blabel">베팅</span>
+      <div class="stepper">
+        <button class="chip step" data-add="-1" aria-label="1 줄이기">−</button>
+        <input type="number" id="bet" min="1" value="1" inputmode="numeric">
+        <button class="chip step" data-add="1" aria-label="1 늘리기">+</button>
+      </div>
+      <button class="chip maxb" data-add="all">MAX</button>
     </div>
     <button class="main" id="goBtn" disabled>탈출구를 선택하세요</button>
-    <div class="btns">
-      <button class="sub" id="shuffleBtn">막대 랜덤 회전<br><small>1코인</small></button>
-      <button class="sub" id="newBoardBtn">새 판 (핀 재배치)<br><small>2코인</small></button>
-      <button class="sub" id="recBtn">기록·업적</button>
-    </div>
-    <div class="msg" id="msg">막대를 탭하면 45° 회전, 끌면 자유 회전. 막대를 다 돌리면 배당이 다시 계산됩니다.</div>
-    <div class="opt">
-      <label>난이도 <select id="diff"><option value="easy">쉬움 (XP×1)</option><option value="normal" selected>보통 (XP×1.5)</option><option value="hard">어려움 (XP×2)</option></select></label>
-      <label>속도 <select id="speed"><option value="0.7">느림</option><option value="1" selected>보통</option><option value="1.4">빠름</option></select></label>
-      <label>그래픽 <select id="quality"><option value="auto" selected>자동</option><option value="high">높음</option><option value="mid">보통</option><option value="low">낮음</option></select></label>
-      <label>바닥 <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select></label>
-      <label><input type="checkbox" id="sound" checked> 소리</label>
-      <label>제한시간 <select id="limit"><option value="30">30초</option><option value="45" selected>45초</option><option value="60">60초</option></select></label>
-    </div>
-    <div class="log" id="log"></div>
-    <div class="help">
-      <b>규칙</b><br>
-      · 탈출구마다 <b>배당이 고정</b>돼 있습니다(×2·×3·×5). 통로가 좁을수록 배당이 큽니다. 막대를 돌려 원하는 탈출구로 길을 만드세요.<br>
-      · <b>쉬움</b>은 무당벌레가 출발할 방향을 화살표로 보여줍니다. 보통·어려움은 방향이 숨겨져 있고, 어려움에는 돌릴 수 없는 <b>빨간 핀 고정 막대</b>가 2개 있습니다.<br>
-      · 🍀 <b>행운 탈출구</b>: 보통·어려움에서는 매 판 탈출구 하나가 무작위로 골라져 배당이 <b>2배</b>가 됩니다.<br>
-      · 막대는 핀에 꽂혀 <b>회전만</b> 됩니다. 다른 막대나 벽에 걸리면 멈춥니다. 랜덤 회전 1코인, 새 판 2코인.<br>
-      · 태엽 무당벌레는 <b>무조건 직진</b>합니다. 막히면 밀면서 조금씩 몸을 틀어 빠져나갑니다.<br>
-      · 맞히면 <b>베팅 × 배당</b>, 3연승부터 <b>연승 보너스 +10%</b>. 시간 초과는 <b>무효(전액 환불)</b>.<br>
-      · 코인·레벨·기록은 자동 저장. 매일 접속하면 출석 보너스(연속 출석·레벨이 높을수록 더 많이). 코인이 바닥나면 2시간 뒤 충전(레벨이 높을수록 더 많이).<br>
-      · 레벨이 오르면 보너스 코인, 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20)로 바뀝니다.
-    </div>
+    <div class="msg" id="msg"></div>
   </div>
 </div>
+
+<!-- 실제 설정값 보관용(화면에는 안 보임) -->
+<div hidden>
+  <select id="diff"><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option></select>
+  <select id="speed"><option value="0.7">느림</option><option value="1" selected>보통</option><option value="1.4">빠름</option></select>
+  <select id="quality"><option value="auto" selected>자동</option><option value="high">높음</option><option value="mid">보통</option><option value="low">낮음</option></select>
+  <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select>
+  <select id="limit"><option value="30">30초</option><option value="45" selected>45초</option><option value="60">60초</option></select>
+  <input type="checkbox" id="sound" checked>
+  <button id="shuffleBtn"></button><div id="log"></div>
+</div>
+
+<div class="modal" id="setModal"><div class="mbox">
+  <h3>설정</h3>
+  <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판 · 2코인</small></div><div class="seg" data-for="diff">
+    <button data-v="easy">쉬움<small>방향 보임 · XP×1</small></button><button data-v="normal">보통<small>🍀행운 · XP×1.5</small></button><button data-v="hard">어려움<small>고정 막대 · XP×2</small></button></div></div>
+  <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="0.7">느림</button><button data-v="1">보통</button><button data-v="1.4">빠름</button></div></div>
+  <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
+  <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
+  <div class="sgroup"><div class="slabel">그래픽</div><div class="seg" data-for="quality"><button data-v="auto">자동</button><button data-v="high">높음</button><button data-v="mid">보통</button><button data-v="low">낮음</button></div></div>
+  <button class="obtn mclose">닫기</button>
+</div></div>
+
+<div class="modal" id="helpModal"><div class="mbox help">
+  <h3>게임 방법</h3>
+  <ol>
+    <li><b>막대를 돌려 길을 만드세요.</b> 막대는 핀에 꽂혀 회전만 됩니다. 탭하면 45°, 끌면 자유 회전. 다른 막대나 벽에 닿으면 멈춥니다.</li>
+    <li><b>탈출구를 고르고 코인을 거세요.</b> 배당은 고정 — ×2 · ×3 · ×5. 통로가 좁을수록 큽니다.</li>
+    <li><b>태엽 무당벌레를 풀어주세요.</b> 무당벌레는 무조건 직진하고, 막히면 밀면서 조금씩 몸을 틉니다.</li>
+  </ol>
+  <h4>난이도</h4>
+  <p><b>쉬움</b> 출발 방향을 화살표로 보여줍니다.<br><b>보통</b> 방향은 숨겨지고, 매 판 🍀 행운 탈출구 하나가 배당 2배.<br><b>어려움</b> 돌릴 수 없는 빨간 핀 고정 막대 2개 + 🍀 행운 탈출구.</p>
+  <h4>보상</h4>
+  <p>맞히면 베팅 × 배당, 3연승부터 +10%. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
+  <h4>PC 조작</h4>
+  <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대</p>
+  <button class="obtn mclose">닫기</button>
+</div></div>
 
 <div class="modal" id="recModal"><div class="mbox"><h3>내 기록</h3><div class="rec" id="recList"></div><h3>업적</h3><div id="achList"></div><button class="obtn" id="recClose" style="width:100%">닫기</button></div></div>
 
@@ -7591,11 +7642,34 @@
     $('recModal').classList.add('show'); };
   $('recClose').onclick = () => $('recModal').classList.remove('show');
   $('diff').value = curDiff;
+  // ── 설정 화면(세그먼트 버튼) · 소리 · 게임 방법 ──
+  const OPT_KEYS = ['speed', 'limit', 'floor', 'quality'];
+  S.opt = S.opt || {}; OPT_KEYS.forEach(k => { if (S.opt[k] != null) $(k).value = S.opt[k]; }); if (S.opt.sound === false) $('sound').checked = false;
+  function syncSeg() {
+    document.querySelectorAll('.seg').forEach(g => { const v = $(g.dataset.for).value; g.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); });
+    document.querySelector('.seg[data-for="floor"]').classList.toggle('dis', stage === 'village');
+    $('sndBtn').classList.toggle('off', !$('sound').checked);
+  }
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+    const key = b.parentElement.dataset.for, sel = $(key); if (sel.value === b.dataset.v) return;
+    sel.value = b.dataset.v; sel.dispatchEvent(new Event('change'));
+    if (OPT_KEYS.includes(key)) { S.opt[key] = sel.value; save(); }
+    syncSeg(); });
+  $('sndBtn').onclick = () => { $('sound').checked = !$('sound').checked; S.opt.sound = $('sound').checked; save(); syncSeg(); };
+  const openModal = id => { syncSeg(); $(id).classList.add('show'); };
+  $('setBtn').onclick = () => openModal('setModal'); $('helpBtn').onclick = () => openModal('helpModal');
+  document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
+  document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
+  // −/+ 길게 누르면 빠르게
+  document.querySelectorAll('.chip.step').forEach(c => { let t1 = null, t2 = null;
+    const stop = () => { clearTimeout(t1); clearInterval(t2); t1 = t2 = null; };
+    c.addEventListener('pointerdown', () => { stop(); t1 = setTimeout(() => { let n = 0; t2 = setInterval(() => { c.click(); if (++n > 10) { clearInterval(t2); t2 = setInterval(() => c.click(), 40); } }, 110); }, 380); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => c.addEventListener(e, stop)); });
   $('diff').onchange = () => { const v = $('diff').value; if (phase !== 'idle' || !pay(2, '난이도 변경(새 판)')) { $('diff').value = curDiff; return; } curDiff = S.diff = v; save(); makeBoard(); invalidateOdds(); setMsg(`난이도 ${$('diff').options[$('diff').selectedIndex].text} — 새 판이 배치됐습니다 (-2코인)`); };
   function setMsg(t, cls) { msgEl.textContent = t; msgEl.className = 'msg' + (cls ? ' ' + cls : ''); }
   function addLog(t) { const d = document.createElement('div'); d.textContent = t; logEl.prepend(d); }
   function refreshUI() {
-    coinsEl.textContent = coins;
+    coinsEl.textContent = coins; $('newBoardBtn').disabled = phase !== 'idle';
     betAmt = Math.max(1, Math.min(Math.max(coins, 1), parseInt(betEl.value) || 1)); betEl.value = betAmt;
     document.querySelectorAll('.exit-btn').forEach(b => { b.classList.toggle('sel', +b.dataset.n === selExit); b.disabled = phase !== 'idle'; });
     EXITS.forEach(e => { pocketMeshes[e.n].material = (lastExit === e.n && phase === 'idle') ? feltWin : (selExit === e.n ? feltSel : feltMat); });
@@ -7615,6 +7689,7 @@
     coins -= betAmt; save(); phase = 'winding'; windT = 0; lastExit = 0; particles.forEach(p => scene.remove(p.m)); particles = [];
     { const keepAng = bug && (DIFF[curDiff] || DIFF.normal).showDir ? bug.ang : null; bug = spawnBug(); if (keepAng !== null) { bug.ang = keepAng; updateBody(bug); } }   // 쉬움: 보여준 방향 그대로 출발
     setExpr('mischief'); snd.windup(); acc = 0;
+    if (isPortrait()) document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });   // 폰: 시작하면 게임판으로 올라가기
     setMsg(`${selExit}번 탈출구(${fmtOdds(selExit)})에 ${betAmt}코인 베팅! 태엽 무당벌레 방출...`); refreshUI();
   }
   const coinGeo = new THREE.CylinderGeometry(4, 4, 1.2, 16);
