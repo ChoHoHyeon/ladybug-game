@@ -245,7 +245,7 @@
   <h4>난이도</h4>
   <p><b>쉬움</b> 무당벌레가 가만히 있고, 긴 막대 8개로 넉넉히 길을 만들 수 있어요.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작! 막대 7개 + 쇠 블록 1개.<br><b>어려움</b> 더 빠르게 돌고, 짧은 막대 6개 중 2개는 못 돌리는 빨간 핀 막대, 쇠 블록 2개.</p>
   <h4>보상</h4>
-  <p>맞히면 베팅 × 배당, 3연승부터 +10%. 이기면 다음 판은 새 배치로 바뀝니다. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
+  <p>맞히면 베팅 × 배당, 3연승부터 +10%. 같은 배치로 5번 이기면 새 배치로 바뀝니다. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
   <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대 · <b>스페이스바 시작</b><br>🎲 랜덤 배치(무료)는 막대 방향만, ⟳ 새 판(2코인)은 핀 위치까지 새로 깝니다.</p>
   <button class="obtn mclose">닫기</button>
@@ -6957,6 +6957,7 @@
   }
   let segCache = null;
   function boxed(s) { const h = s.t / 2; s.minx = Math.min(s.x1, s.x2) - h; s.maxx = Math.max(s.x1, s.x2) + h; s.miny = Math.min(s.y1, s.y2) - h; s.maxy = Math.max(s.y1, s.y2) + h; return s; }
+  let boardWins = 0; const BOARD_WIN_LIMIT = 5;   // 같은 배치로 이긴 횟수 / 이 횟수에 도달하면 자동 새 판
   let blocks = [];   // 판마다 새로 놓는 고정 장애물(쇠 블록)
   function segments() { if (segCache) return segCache; if (!staticSegs) staticSegs = buildStaticSegs().map(boxed); return staticSegs.concat(blocks, bars.map(b => boxed({ ...barEnds(b), t: BAR_T, bar: 1 }))); }
   const FAR = (px, py, s) => px < s.minx - 30 || px > s.maxx + 30 || py < s.miny - 30 || py > s.maxy + 30;
@@ -7028,6 +7029,7 @@
     bars.slice().sort(() => Math.random() - 0.5).slice(0, d.locked || 0).forEach(b => b.locked = true);   // 어려움: 고정 막대
     bars.forEach(b => buildBarMesh(b));
     if (typeof rollLucky === 'function' && typeof curDiff !== 'undefined') rollLucky();
+    boardWins = 0;   // 새 배치마다 승수 초기화
   }
   function shuffleBars() { bars.forEach(b => { if (!b.locked) rotateBarTo(b, b.ang + rnd(-Math.PI, Math.PI)); }); }
 
@@ -7857,8 +7859,10 @@
     save();
     if (parseInt(betEl.value) > coins) betEl.value = Math.max(1, coins);
     rollLucky(); refreshUI(); invalidateOdds();
-    // 이긴 판은 같은 배치로 반복해서 따지 못하게 자동으로 새 판(무료). 진 판·무효 판은 그대로 두고 다시 도전
-    if (wonRound) setTimeout(() => { if (phase === 'idle') { makeBoard(); invalidateOdds(); setMsg('🎉 이겼어요! 새 판이 깔렸습니다'); } }, 700);
+    // 같은 배치로 5번 이기면 자동으로 새 판(무료) — 막대 세팅 노력은 인정하되 무한 반복은 막음
+    if (wonRound) { boardWins++;
+      if (boardWins >= BOARD_WIN_LIMIT) setTimeout(() => { if (phase === 'idle') { makeBoard(); invalidateOdds(); setMsg(`🏆 이 판에서 ${BOARD_WIN_LIMIT}승! 새 판이 깔렸습니다`); } }, 700);
+      else setTimeout(() => { if (phase === 'idle') setMsg(`이 판에서 ${boardWins}승 — ${BOARD_WIN_LIMIT}승하면 새 판이 깔려요`); }, 700); }
     setTimeout(() => { if (phase === 'idle' && !oOn && bug) { bug = spawnBug(); setExpr('happy'); } }, 1200);
     if (coins <= 0) { S.brokeAt = Date.now(); save(); notify('코인이 다 떨어졌어요', `2시간 뒤 무당벌레가 <b>${refillAmt()}코인</b>을 주워 와요<br>내일 출석 보너스도 잊지 마세요!`); }
   }
