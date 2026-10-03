@@ -33,23 +33,44 @@
   .stage{position:relative;width:820px;max-width:100%;scroll-margin-top:8px}
   #cv{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px #2a2530;touch-action:none}
   /* 새 판: 게임판 오른쪽 아래 둥근 버튼 */
-  .statchips{position:absolute;left:10px;top:10px;display:flex;gap:6px;padding:0;border:none;background:none;cursor:pointer;z-index:3}
-  .statchips .sc{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#e9dfc9;
-        background:rgba(18,15,21,.72);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.35);box-shadow:0 4px 12px rgba(0,0,0,.4)}
-  .statchips .sc i{font-style:normal;color:var(--muted);font-weight:400;font-size:11px}
-  .statchips .sc.d-easy{color:#9ff0c4;border-color:rgba(95,211,138,.55)}
-  .statchips .sc.d-normal{color:#f7dc8f;border-color:rgba(233,196,106,.6)}
-  .statchips .sc.d-hard{color:#ff9aa4;border-color:rgba(224,85,99,.6)}
-  .boardbtns{position:absolute;right:10px;bottom:10px;display:flex;gap:8px;z-index:3}
-  .newboard{display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
-        background:rgba(18,15,21,.78);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.5);color:var(--text);font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:.15s;z-index:3}
-  .newboard svg{width:16px;height:16px;fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .newboard em{font-style:normal;font-size:11px;color:#2a1a05;background:linear-gradient(#f7dc8f,#c99a32);border-radius:999px;padding:1px 7px}
-  .newboard em:not(.free)::after{content:"코인";margin-left:1px}
-  .newboard em.free{background:linear-gradient(#9ff0c4,#3fae78)}
+  /* 게임판 위 HUD: 어두운 유리 + 금 이중선 */
+  .hudglass{position:relative;background:linear-gradient(180deg,rgba(46,36,26,.88),rgba(14,11,9,.9));border:1px solid rgba(233,196,106,.6);
+        box-shadow:inset 0 1px 0 rgba(255,236,190,.18),0 6px 18px rgba(0,0,0,.55);backdrop-filter:blur(5px);color:var(--text);cursor:pointer;font-family:inherit}
+  .hudglass::before{content:"";position:absolute;inset:3px;border:1px solid rgba(233,196,106,.18);border-radius:inherit;pointer-events:none}
+  .hudglass:active{transform:scale(.97)}
+  .stagebar{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;z-index:3;pointer-events:none}
+  .stagebar > *{pointer-events:auto}
+  .plaque{border-radius:12px;padding:6px 14px 7px;text-align:left;min-width:0}
+  .plaque small{display:block;font-size:9px;letter-spacing:2.5px;color:#bfa66a;font-weight:700}
+  .plaque b{display:block;font-family:Georgia,"Times New Roman",serif;font-size:15px;letter-spacing:.5px;white-space:nowrap;
+        background:linear-gradient(#fff2c4,#e9c46a 55%,#b48a35);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .plaque b::after{content:" ▾";font-size:10px;-webkit-text-fill-color:#bfa66a}
+  .infopill{display:flex;align-items:stretch;border-radius:12px;padding:5px 4px}
+  .infopill span{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 9px;line-height:1.15}
+  .infopill span + span{border-left:1px solid rgba(233,196,106,.25)}
+  .infopill i{font-style:normal;font-size:9px;letter-spacing:1.5px;color:#a8946a;font-weight:700}
+  .infopill b{font-size:13px;font-weight:800;color:#f1e4c4}
+  .infopill b.d-easy{color:#8ee6b5} .infopill b.d-normal{color:#f7dc8f} .infopill b.d-hard{color:#ff9aa4}
+  .boardbtns{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:center;gap:10px;z-index:3}
+  .newboard{display:flex;align-items:center;gap:8px;border-radius:12px;padding:8px 14px 8px 12px;font-size:13px;font-weight:800;letter-spacing:.3px}
+  .newboard svg{width:17px;height:17px;fill:none;stroke:var(--gold);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .newboard svg .pip{fill:var(--gold);stroke:none}
-  .newboard:active{transform:scale(.95)}
+  .newboard em{font-style:normal;font-size:10.5px;font-weight:800;color:#2a1a05;background:linear-gradient(#f7dc8f,#c99a32);border-radius:6px;padding:2px 6px}
+  .newboard em:not(.free)::after{content:" 코인"}
+  .newboard em.free{background:linear-gradient(#b5f3d0,#4fb985)}
+  /* 무대 선택 */
+  .stages{display:grid;gap:10px}
+  .stcard{position:relative;display:flex;align-items:flex-end;height:96px;border-radius:14px;overflow:hidden;border:1px solid rgba(233,196,106,.35);background:#111 center/cover;cursor:pointer;padding:0;text-align:left;font-family:inherit}
+  .stcard::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,8,8,.85),rgba(10,8,8,.15))}
+  .stcard div{position:relative;z-index:1;padding:10px 14px;color:var(--text)}
+  .stcard b{display:block;font-family:Georgia,serif;font-size:17px;color:var(--gold)}
+  .stcard small{font-size:11px;color:#cfc6b8}
+  .stcard.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(233,196,106,.6)}
+  .stcard.on b::after{content:"  ✓ 선택됨";font-family:inherit;font-size:11px;color:#9fe3bd}
+  .stcard.lock{filter:grayscale(1) brightness(.55);cursor:not-allowed}
+  .stcard.lock b::before{content:"🔒 ";font-size:14px}
   .newboard[disabled]{opacity:0;pointer-events:none}
+  @media (max-width:760px){ .plaque{padding:5px 11px 6px} .plaque b{font-size:13px} .infopill span{padding:0 7px} .infopill b{font-size:12px} .newboard{padding:7px 12px 7px 10px;font-size:12.5px} }
   .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
   .overlay.show{display:flex}
   .ob{background:rgba(20,16,22,.86);border:1px solid rgba(233,196,106,.45);border-radius:18px;padding:14px 22px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);min-width:320px}
@@ -154,10 +175,13 @@
 
 <div class="wrap">
   <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div>
-    <button class="statchips" id="statChips" title="설정 열기"></button>
+    <div class="stagebar">
+      <button class="hudglass plaque" id="stagePlaque" title="무대 고르기"><small id="stageLv">STAGE 1</small><b id="stageName">황금 태엽 카지노</b></button>
+      <button class="hudglass infopill" id="statChips" title="설정 열기"></button>
+    </div>
     <div class="boardbtns">
-      <button class="newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg><span>랜덤 배치</span><em class="free">무료</em></button>
-      <button class="newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
+      <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg><span>랜덤 배치</span><em class="free">무료</em></button>
+      <button class="hudglass newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
     </div>
   </div>
 
@@ -205,6 +229,12 @@
   <button class="obtn mclose">닫기</button>
 </div></div>
 
+<div class="modal" id="stageModal"><div class="mbox">
+  <h3>무대 고르기</h3>
+  <div class="stages" id="stageList"></div>
+  <button class="obtn mclose">닫기</button>
+</div></div>
+
 <div class="modal" id="helpModal"><div class="mbox help">
   <h3>게임 방법</h3>
   <ol>
@@ -215,7 +245,7 @@
   <h4>난이도</h4>
   <p><b>쉬움</b> 무당벌레가 가만히 있고, 긴 막대 8개로 넉넉히 길을 만들 수 있어요.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작! 막대 7개 + 쇠 블록 1개.<br><b>어려움</b> 더 빠르게 돌고, 짧은 막대 6개 중 2개는 못 돌리는 빨간 핀 막대, 쇠 블록 2개.</p>
   <h4>보상</h4>
-  <p>맞히면 베팅 × 배당, 3연승부터 +10%. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
+  <p>맞히면 베팅 × 배당, 3연승부터 +10%. 이기면 다음 판은 새 배치로 바뀝니다. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
   <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대 · <b>스페이스바 시작</b><br>🎲 랜덤 배치(무료)는 막대 방향만, ⟳ 새 판(2코인)은 핀 위치까지 새로 깝니다.</p>
   <button class="obtn mclose">닫기</button>
@@ -7643,7 +7673,7 @@
     while (S.xp >= xpNeed(S.level)) { S.xp -= xpNeed(S.level); S.level++;
       const reward = 10 + S.level * 5; coins += reward; const before = keyTierOf(S.level - 1), t = applyKeyTier(S.level);
       notify(`레벨 업! Lv.${S.level}`, `보너스 <b>${reward}코인</b>` + (t !== before ? `<br>태엽이 <b>${t.name}</b>(으)로 바뀌었어요!` : ''));
-      if (S.level >= VILLAGE_LV && stage !== 'village') { applyStage('village'); makeBoard(); notify('새 판이 열렸어요!', '햇살 좋은 <b>시골 돌담길</b>로 이사했어요<br>돌담은 움직이지 않는 장애물이에요'); } }
+      if (S.level === VILLAGE_LV && stage !== 'village') { applyStage('village'); makeBoard(); S.stageSel = 'village'; updatePlaque(); notify('새 무대가 열렸어요!', '햇살 좋은 <b>시골 돌담길</b>로 이사했어요<br>돌담은 움직이지 않는 장애물이에요<br>왼쪽 위 무대 이름을 누르면 언제든 바꿀 수 있어요'); } }
   }
   function updateProfile() {
     $('lvTxt').textContent = 'Lv.' + S.level; const need = xpNeed(S.level);
@@ -7721,7 +7751,7 @@
     $('sndBtn').classList.toggle('off', !$('sound').checked);
     // 게임판 왼쪽 위: 현재 설정 요약(누르면 설정 열림)
     const opt = id => $(id).options[$(id).selectedIndex].text;
-    $('statChips').innerHTML = `<span class="sc d-${$('diff').value}">${opt('diff')}</span><span class="sc"><i>속도</i>${opt('speed')}</span><span class="sc"><i>⏱</i>${opt('limit')}</span>`;
+    $('statChips').innerHTML = `<span><i>난이도</i><b class="d-${$('diff').value}">${opt('diff')}</b></span><span><i>속도</i><b>${opt('speed')}</b></span><span><i>시간</i><b>${opt('limit')}</b></span>`;
   }
   document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
     const key = b.parentElement.dataset.for, sel = $(key); if (sel.value === b.dataset.v) return;
@@ -7730,6 +7760,19 @@
     syncSeg(); });
   $('sndBtn').onclick = () => { $('sound').checked = !$('sound').checked; S.opt.sound = $('sound').checked; save(); syncSeg(); };
   const openModal = id => { syncSeg(); $(id).classList.add('show'); };
+  // ── 무대(배경): 레벨이 오르면 하나씩 열리고, 열린 무대는 자유롭게 고를 수 있음 ──
+  const STAGES = [
+    { id: 'casino', name: '황금 태엽 카지노', lv: 1, desc: '태엽 공방 위 초록 펠트 테이블', img: ASSETS.workbench },
+    { id: 'village', name: '시골 돌담길', lv: VILLAGE_LV, desc: '햇살 좋은 돌담길 · 돌담 장애물', img: ASSETS.village },
+    { id: 'soon', name: '새 무대 준비 중', lv: 10, desc: '곧 열려요', img: '', soon: true },
+  ];
+  function updatePlaque() { const st = STAGES.find(x => x.id === stage) || STAGES[0]; $('stageName').textContent = st.name; $('stageLv').textContent = 'STAGE ' + (STAGES.indexOf(st) + 1); }
+  function chooseStage(id) { if (id === stage) return; applyStage(id); makeBoard(); invalidateOdds(); S.stageSel = id; save(); updatePlaque(); syncSeg(); setMsg(`무대: ${(STAGES.find(x => x.id === id) || {}).name}`); }
+  $('stagePlaque').onclick = () => {
+    $('stageList').innerHTML = STAGES.map(st => { const open = !st.soon && S.level >= st.lv;
+      return `<button class="stcard ${open ? '' : 'lock'} ${st.id === stage ? 'on' : ''}" data-id="${st.id}" ${open ? '' : 'disabled'} style="${st.img && st.img.indexOf('data:') === 0 ? `background-image:url(${st.img})` : 'background:linear-gradient(135deg,#2a2330,#120f15)'}"><div><b>${st.name}</b><small>${open ? st.desc : `Lv.${st.lv}에 열려요`}</small></div></button>`; }).join('');
+    $('stageList').querySelectorAll('.stcard:not(.lock)').forEach(b => b.onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 무대를 바꿀 수 없어요.'); return; } chooseStage(b.dataset.id); $('stageModal').classList.remove('show'); });
+    openModal('stageModal'); };
   $('setBtn').onclick = () => openModal('setModal'); $('statChips').onclick = () => openModal('setModal'); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
   document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
@@ -7775,7 +7818,9 @@
     setMsg(`${selExit}번 탈출구(${fmtOdds(selExit)})에 ${betAmt}코인 베팅! 태엽 무당벌레 방출...`); refreshUI();
   }
   const coinGeo = new THREE.CylinderGeometry(4, 4, 1.2, 16);
+  let wonRound = false;
   function endRound(exitN, timeout) {
+    wonRound = false;
     segCache = null;
     phase = 'idle'; lastExit = exitN;
     const e = EXITS[selExit - 1], dx = (DIFF[curDiff] || DIFF.normal).xp;
@@ -7797,7 +7842,7 @@
         showOverlay('베팅 성공!', `${exitN}번 탈출구 ${odTxt}<br>${betAmt}코인 → <b>${win}코인</b>` + (bonus ? `<br>${S.winStreak}연승 보너스 +10%` : ''), 'win', 'win', 'win');
         const g = exitGeom(e), px = e.side === 'L' ? g.x - POCKET_W / 2 : g.x + POCKET_W / 2;
         for (let i = 0; i < 36; i++) { const m = new THREE.Mesh(coinGeo, goldMat); m.position.set(px, 30, g.cy); m.castShadow = true; scene.add(m); particles.push({ m, vx: rnd(-90, 90), vy: rnd(120, 260), vz: rnd(-90, 90), life: rnd(1.2, 2.2), rx: rnd(-6, 6), rz: rnd(-6, 6) }); }
-        unlock('first_win'); if (EXITS[selExit - 1].mult === 5) { S.rec.x5 = (S.rec.x5 || 0) + 1; unlock('odds5'); if (S.rec.x5 >= 3) unlock('odds10'); if (S.rec.x5 >= 10) unlock('odds20'); }
+        wonRound = true; unlock('first_win'); if (EXITS[selExit - 1].mult === 5) { S.rec.x5 = (S.rec.x5 || 0) + 1; unlock('odds5'); if (S.rec.x5 >= 3) unlock('odds10'); if (S.rec.x5 >= 10) unlock('odds20'); }
         if (S.winStreak >= 3) unlock('streak3'); if (S.winStreak >= 5) unlock('streak5'); if (S.allIn) unlock('allin'); if (curDiff === 'hard') unlock('hard_win');
         S.lastXp = xpFor(true, betAmt, dx); gainXp(S.lastXp);
       } else {
@@ -7812,6 +7857,8 @@
     save();
     if (parseInt(betEl.value) > coins) betEl.value = Math.max(1, coins);
     rollLucky(); refreshUI(); invalidateOdds();
+    // 이긴 판은 같은 배치로 반복해서 따지 못하게 자동으로 새 판(무료). 진 판·무효 판은 그대로 두고 다시 도전
+    if (wonRound) setTimeout(() => { if (phase === 'idle') { makeBoard(); invalidateOdds(); setMsg('🎉 이겼어요! 새 판이 깔렸습니다'); } }, 700);
     setTimeout(() => { if (phase === 'idle' && !oOn && bug) { bug = spawnBug(); setExpr('happy'); } }, 1200);
     if (coins <= 0) { S.brokeAt = Date.now(); save(); notify('코인이 다 떨어졌어요', `2시간 뒤 무당벌레가 <b>${refillAmt()}코인</b>을 주워 와요<br>내일 출석 보너스도 잊지 마세요!`); }
   }
@@ -7906,7 +7953,7 @@
       for (let i = 0; i < n; i++) { bug = spawnBug(); if (ang != null) { bug.ang = ang + (sd ? gauss() * sd : 0); updateBody(bug); } let t = 0, ex = 0; while (t < 45 && !ex) { ex = stepBug(1 / 60); t += 1 / 60; } if (ex) cnt[ex]++; else to++; }
       SIM = false; segCache = null; bug = keep; return { cnt, to }; },
   };
-  fitView(); applyKeyTier(S.level); applyStage(S.level >= VILLAGE_LV ? 'village' : 'casino'); makeBoard(); bug = spawnBug(); setExpr('happy'); invalidateOdds(); refreshUI(); requestAnimationFrame(loop);
+  fitView(); applyKeyTier(S.level); applyStage(S.stageSel && (S.stageSel === 'casino' || (S.stageSel === 'village' && S.level >= VILLAGE_LV)) ? S.stageSel : (S.level >= VILLAGE_LV ? 'village' : 'casino')); updatePlaque(); syncSeg(); makeBoard(); bug = spawnBug(); setExpr('happy'); invalidateOdds(); refreshUI(); requestAnimationFrame(loop);
   checkDaily(true); checkBroke(); setInterval(() => { checkDaily(false); checkBroke(); }, 60000);
 })();
 </script>
