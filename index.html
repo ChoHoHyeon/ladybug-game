@@ -7578,8 +7578,14 @@
             rec: { maxCoins: 20, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, ach: {} };
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(S, o); S.rec = Object.assign({ maxCoins: 0, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, o.rec || {}); S.ach = o.ach || {}; } } catch (e) {}
   coins = S.coins;
-  // 테스트용: 주소 끝에 #coins=500 을 붙여 열면 코인을 그 값으로 맞춤(주소는 바로 지움)
-  { const m = location.hash.match(/coins=(\d+)/); if (m) { coins = S.coins = Math.min(99999, +m[1]); S.brokeAt = 0; try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} history.replaceState(null, '', location.pathname + location.search); } }
+  // 테스트용(정식 출시 전 삭제 예정): 주소 끝에 #coins=500&key=암호 → 암호가 맞을 때만 코인을 그 값으로 맞춤
+  // 코드에는 암호 대신 해시만 저장. 주소의 #… 부분은 바로 지움
+  (async () => { const h = location.hash; if (!/coins=/.test(h)) return; history.replaceState(null, '', location.pathname + location.search);
+    const m = h.match(/coins=(\d+)/), k = (h.match(/key=([^&]+)/) || [])[1]; if (!m || !k || !(window.crypto && crypto.subtle)) return;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ladybug-dev:' + decodeURIComponent(k)));
+    const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    if (hex !== '980af249c444d6f8c12d39eab7e5ce175762ad8513874160e03c470db0cedd85') return;
+    coins = S.coins = Math.min(99999, +m[1]); S.brokeAt = 0; save(); if (typeof refreshUI === 'function') refreshUI(); })();
   function save() { S.coins = coins; S.rec.maxCoins = Math.max(S.rec.maxCoins, coins); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
   const dayStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   // ── 레벨 ──
