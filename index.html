@@ -188,7 +188,7 @@
 
 <div class="modal" id="setModal"><div class="mbox">
   <h3>설정</h3>
-  <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판 · 2코인</small></div><div class="seg" data-for="diff">
+  <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판이 깔려요 · 무료</small></div><div class="seg" data-for="diff">
     <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>천천히 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
   <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
@@ -7682,7 +7682,7 @@
     const stop = () => { clearTimeout(t1); clearInterval(t2); t1 = t2 = null; };
     c.addEventListener('pointerdown', () => { stop(); t1 = setTimeout(() => { let n = 0; t2 = setInterval(() => { c.click(); if (++n > 10) { clearInterval(t2); t2 = setInterval(() => c.click(), 40); } }, 110); }, 380); });
     ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => c.addEventListener(e, stop)); });
-  $('diff').onchange = () => { const v = $('diff').value; if (phase !== 'idle' || !pay(2, '난이도 변경(새 판)')) { $('diff').value = curDiff; return; } curDiff = S.diff = v; save(); makeBoard(); invalidateOdds(); setMsg(`난이도 ${$('diff').options[$('diff').selectedIndex].text} — 새 판이 배치됐습니다 (-2코인)`); };
+  $('diff').onchange = () => { const v = $('diff').value; if (phase !== 'idle') { $('diff').value = curDiff; setMsg('무당벌레가 달리는 중에는 난이도를 바꿀 수 없어요.'); return; } curDiff = S.diff = v; save(); makeBoard(); invalidateOdds(); setMsg(`난이도 ${$('diff').options[$('diff').selectedIndex].text} — 새 판이 배치됐습니다`); };   // 난이도 변경은 무료
   function setMsg(t, cls) { msgEl.textContent = t; msgEl.className = 'msg' + (cls ? ' ' + cls : ''); }
   function addLog(t) { const d = document.createElement('div'); d.textContent = t; logEl.prepend(d); }
   function refreshUI() {
