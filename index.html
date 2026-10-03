@@ -33,31 +33,41 @@
   .stage{position:relative;width:820px;max-width:100%;scroll-margin-top:8px}
   #cv{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px #2a2530;touch-action:none}
   /* 새 판: 게임판 오른쪽 아래 둥근 버튼 */
-  /* 게임판 위 HUD: 어두운 유리 + 금 이중선 */
-  .hudglass{position:relative;background:linear-gradient(180deg,rgba(46,36,26,.88),rgba(14,11,9,.9));border:1px solid rgba(233,196,106,.6);
-        box-shadow:inset 0 1px 0 rgba(255,236,190,.18),0 6px 18px rgba(0,0,0,.55);backdrop-filter:blur(5px);color:var(--text);cursor:pointer;font-family:inherit}
-  .hudglass::before{content:"";position:absolute;inset:3px;border:1px solid rgba(233,196,106,.18);border-radius:inherit;pointer-events:none}
+  /* 게임판 위 HUD: 흑칠(옻칠) 바탕 + 금속 금테(그라데이션 테두리) + 안쪽 가는 금선 */
+  .hudglass{position:relative;color:var(--text);cursor:pointer;font-family:inherit;border:1.5px solid transparent;
+        background:linear-gradient(180deg,rgba(34,27,20,.94),rgba(10,8,7,.94)) padding-box,
+                   linear-gradient(135deg,#fff3c8,#b88a32 30%,#f6d98a 52%,#8a6420 78%,#e9c46a) border-box;
+        box-shadow:0 8px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,236,190,.22),inset 0 -2px 6px rgba(0,0,0,.6)}
+  .hudglass::before{content:"";position:absolute;inset:3px;border:1px solid rgba(233,196,106,.22);border-radius:inherit;pointer-events:none}
   .hudglass:active{transform:scale(.97)}
   .stagebar{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;z-index:3;pointer-events:none}
   .stagebar > *{pointer-events:auto}
-  .plaque{border-radius:12px;padding:6px 14px 7px;text-align:left;min-width:0}
-  .plaque small{display:block;font-size:9px;letter-spacing:2.5px;color:#bfa66a;font-weight:700}
-  .plaque b{display:block;font-family:Georgia,"Times New Roman",serif;font-size:15px;letter-spacing:.5px;white-space:nowrap;
-        background:linear-gradient(#fff2c4,#e9c46a 55%,#b48a35);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .plaque b::after{content:" ▾";font-size:10px;-webkit-text-fill-color:#bfa66a}
-  .infopill{display:flex;align-items:stretch;border-radius:12px;padding:5px 4px}
-  .infopill span{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 9px;line-height:1.15}
-  .infopill span + span{border-left:1px solid rgba(233,196,106,.25)}
-  .infopill i{font-style:normal;font-size:9px;letter-spacing:1.5px;color:#a8946a;font-weight:700}
-  .infopill b{font-size:13px;font-weight:800;color:#f1e4c4}
-  .infopill b.d-easy{color:#8ee6b5} .infopill b.d-normal{color:#f7dc8f} .infopill b.d-hard{color:#ff9aa4}
-  .boardbtns{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:center;gap:10px;z-index:3}
-  .newboard{display:flex;align-items:center;gap:8px;border-radius:12px;padding:8px 14px 8px 12px;font-size:13px;font-weight:800;letter-spacing:.3px}
-  .newboard svg{width:17px;height:17px;fill:none;stroke:var(--gold);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-  .newboard svg .pip{fill:var(--gold);stroke:none}
-  .newboard em{font-style:normal;font-size:10.5px;font-weight:800;color:#2a1a05;background:linear-gradient(#f7dc8f,#c99a32);border-radius:6px;padding:2px 6px}
-  .newboard em:not(.free)::after{content:" 코인"}
-  .newboard em.free{background:linear-gradient(#b5f3d0,#4fb985)}
+  /* 무대 이름: 상자 없이 판 위 제목처럼 (금빛 글자 + 그림자) */
+  .plaque{background:none;border:none;padding:2px 2px 0;text-align:left;cursor:pointer;font-family:inherit;min-width:0;
+        filter:drop-shadow(0 2px 2px rgba(0,0,0,.95)) drop-shadow(0 0 10px rgba(0,0,0,.75))}
+  .plaque:active{transform:scale(.97)}
+  .plaque small{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:3px;color:#e9d39a;font-weight:800}
+  .plaque small::after{content:"";width:34px;height:1px;background:linear-gradient(90deg,#e9c46a,transparent)}
+  .plaque b{display:block;font-family:Georgia,"Times New Roman",serif;font-size:21px;letter-spacing:1px;white-space:nowrap;line-height:1.15;
+        background:linear-gradient(#fff6d8,#f0cf7a 50%,#c4973f);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .plaque b::after{content:" ▾";font-size:11px;-webkit-text-fill-color:#e9d39a}
+  .infopill{display:flex;align-items:stretch;border-radius:12px;padding:6px 6px}
+  .infopill span{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px;line-height:1.2}
+  .infopill span + span::before{content:"";position:absolute;left:-3px;top:50%;width:5px;height:5px;margin-top:-2.5px;transform:rotate(45deg);background:linear-gradient(135deg,#f7dc8f,#a8842e)}
+  .infopill i{font-style:normal;font-size:9px;letter-spacing:2px;color:#b39b62;font-weight:700}
+  .infopill b{font-family:Georgia,"Times New Roman",serif;font-size:14px;font-weight:700;letter-spacing:.5px;
+        background:linear-gradient(#fff6d8,#f0cf7a 55%,#c4973f);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .infopill b.d-easy{background:linear-gradient(#e6fff0,#8ee6b5 60%,#4fb985);-webkit-background-clip:text;background-clip:text}
+  .infopill b.d-hard{background:linear-gradient(#ffe3e6,#ff9aa4 60%,#d65563);-webkit-background-clip:text;background-clip:text}
+  .boardbtns{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:center;gap:12px;z-index:3}
+  .newboard{display:flex;align-items:center;gap:9px;border-radius:12px;padding:7px 14px 7px 8px;font-size:13.5px;font-weight:800;letter-spacing:.5px;color:#f3e7c8}
+  .newboard .ic{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
+        background:radial-gradient(circle at 50% 35%,#3a2e1c,#120e09);box-shadow:inset 0 0 0 1px rgba(233,196,106,.55),0 2px 4px rgba(0,0,0,.5)}
+  .newboard svg{width:16px;height:16px;fill:none;stroke:#f0cf7a;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .newboard svg .pip{fill:#f0cf7a;stroke:none}
+  .newboard em{font-style:normal;font-family:Georgia,serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:#f0cf7a;padding:2px 7px;border-radius:5px;border:1px solid rgba(233,196,106,.6);background:rgba(233,196,106,.08)}
+  .newboard em:not(.free)::after{content:" 코인";font-family:inherit}
+  .newboard em.free{color:#9fe3bd;border-color:rgba(95,211,138,.6);background:rgba(95,211,138,.08)}
   /* 무대 선택 */
   .stages{display:grid;gap:10px}
   .stcard{position:relative;display:flex;align-items:flex-end;height:96px;border-radius:14px;overflow:hidden;border:1px solid rgba(233,196,106,.35);background:#111 center/cover;cursor:pointer;padding:0;text-align:left;font-family:inherit}
@@ -70,7 +80,7 @@
   .stcard.lock{filter:grayscale(1) brightness(.55);cursor:not-allowed}
   .stcard.lock b::before{content:"🔒 ";font-size:14px}
   .newboard[disabled]{opacity:0;pointer-events:none}
-  @media (max-width:760px){ .plaque{padding:5px 11px 6px} .plaque b{font-size:13px} .infopill span{padding:0 7px} .infopill b{font-size:12px} .newboard{padding:7px 12px 7px 10px;font-size:12.5px} }
+  @media (max-width:760px){ .plaque b{font-size:18px} .infopill b{font-size:13px} .newboard{padding:6px 12px 6px 7px;font-size:12.5px} .infopill span{padding:0 8px} }
   .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
   .overlay.show{display:flex}
   .ob{background:rgba(20,16,22,.86);border:1px solid rgba(233,196,106,.45);border-radius:18px;padding:14px 22px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);min-width:320px}
@@ -176,12 +186,12 @@
 <div class="wrap">
   <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div>
     <div class="stagebar">
-      <button class="hudglass plaque" id="stagePlaque" title="무대 고르기"><small id="stageLv">STAGE 1</small><b id="stageName">황금 태엽 카지노</b></button>
+      <button class="plaque" id="stagePlaque" title="무대 고르기"><small id="stageLv">STAGE 1</small><b id="stageName">황금 태엽 카지노</b></button>
       <button class="hudglass infopill" id="statChips" title="설정 열기"></button>
     </div>
     <div class="boardbtns">
-      <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg><span>랜덤 배치</span><em class="free">무료</em></button>
-      <button class="hudglass newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
+      <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg></span><span>랜덤 배치</span><em class="free">무료</em></button>
+      <button class="hudglass newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg></span><span>새 판</span><em>2</em></button>
     </div>
   </div>
 
