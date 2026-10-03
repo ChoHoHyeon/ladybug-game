@@ -33,11 +33,14 @@
   .stage{position:relative;width:820px;max-width:100%;scroll-margin-top:8px}
   #cv{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px #2a2530;touch-action:none}
   /* 새 판: 게임판 오른쪽 아래 둥근 버튼 */
-  .newboard{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
+  .boardbtns{position:absolute;right:10px;bottom:10px;display:flex;gap:8px;z-index:3}
+  .newboard{display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
         background:rgba(18,15,21,.78);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.5);color:var(--text);font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:.15s;z-index:3}
   .newboard svg{width:16px;height:16px;fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .newboard em{font-style:normal;font-size:11px;color:#2a1a05;background:linear-gradient(#f7dc8f,#c99a32);border-radius:999px;padding:1px 7px}
-  .newboard em::after{content:"코인";margin-left:1px}
+  .newboard em:not(.free)::after{content:"코인";margin-left:1px}
+  .newboard em.free{background:linear-gradient(#9ff0c4,#3fae78)}
+  .newboard svg .pip{fill:var(--gold);stroke:none}
   .newboard:active{transform:scale(.95)}
   .newboard[disabled]{opacity:0;pointer-events:none}
   .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
@@ -139,7 +142,10 @@
 
 <div class="wrap">
   <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div>
-    <button class="newboard" id="newBoardBtn" title="핀 위치를 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
+    <div class="boardbtns">
+      <button class="newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg><span>랜덤 배치</span><em class="free">무료</em></button>
+      <button class="newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
+    </div>
   </div>
 
   <div class="panel">
@@ -170,13 +176,13 @@
   <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select>
   <select id="limit"><option value="30">30초</option><option value="45" selected>45초</option><option value="60">60초</option></select>
   <input type="checkbox" id="sound" checked>
-  <button id="shuffleBtn"></button><div id="log"></div>
+  <div id="log"></div>
 </div>
 
 <div class="modal" id="setModal"><div class="mbox">
   <h3>설정</h3>
   <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판 · 2코인</small></div><div class="seg" data-for="diff">
-    <button data-v="easy">쉬움<small>방향 보임 · XP×1</small></button><button data-v="normal">보통<small>🍀행운 · XP×1.5</small></button><button data-v="hard">어려움<small>고정 막대 · XP×2</small></button></div></div>
+    <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>천천히 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
   <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="0.7">느림</button><button data-v="1">보통</button><button data-v="1.4">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
@@ -189,14 +195,14 @@
   <ol>
     <li><b>막대를 돌려 길을 만드세요.</b> 막대는 핀에 꽂혀 회전만 됩니다. 탭하면 45°, 끌면 자유 회전. 다른 막대나 벽에 닿으면 멈춥니다.</li>
     <li><b>탈출구를 고르고 코인을 거세요.</b> 배당은 고정 — ×2 · ×3 · ×5. 통로가 좁을수록 큽니다.</li>
-    <li><b>태엽 무당벌레를 풀어주세요.</b> 무당벌레는 무조건 직진하고, 막히면 밀면서 조금씩 몸을 틉니다.</li>
+    <li><b>타이밍을 맞춰 시작!</b> 무당벌레는 시작 버튼을 누른 순간 바라보던 방향(화살표)으로 출발해 무조건 직진하고, 막히면 밀면서 조금씩 몸을 틉니다.</li>
   </ol>
   <h4>난이도</h4>
-  <p><b>쉬움</b> 출발 방향을 화살표로 보여줍니다.<br><b>보통</b> 방향은 숨겨지고, 매 판 🍀 행운 탈출구 하나가 배당 2배.<br><b>어려움</b> 돌릴 수 없는 빨간 핀 고정 막대 2개 + 🍀 행운 탈출구.</p>
+  <p><b>쉬움</b> 무당벌레가 가만히 있어 방향이 정해져 있습니다.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작!<br><b>어려움</b> 더 빠르게 돌고, 돌릴 수 없는 빨간 핀 고정 막대가 2개 있습니다.</p>
   <h4>보상</h4>
   <p>맞히면 베팅 × 배당, 3연승부터 +10%. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
-  <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대</p>
+  <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대<br>🎲 랜덤 배치(무료)는 막대 방향만, ⟳ 새 판(2코인)은 핀 위치까지 새로 깝니다.</p>
   <button class="obtn mclose">닫기</button>
 </div></div>
 
@@ -6872,10 +6878,10 @@
   let bars = [];
   // 막대: 폰에서도 잡기 쉽게 최소 길이 95px·두께 18px. 쉬움은 막대 수를 줄여 갇힘(시간초과)을 줄임
   const DIFF = {
-    // count: 막대 수(격자 칸 중 무작위 선택) · showDir: 출발 방향 화살표 · locked: 돌릴 수 없는 고정 막대 수
-    easy:   { cols: 3, rows: 3, count: 6,  len: [90, 120], jitter: 30, xp: 1,   showDir: true, locked: 0 },
-    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, showDir: false, locked: 0, luck: true },
-    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   showDir: false, locked: 2, luck: true },
+    // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
+    easy:   { cols: 3, rows: 3, count: 6,  len: [90, 120], jitter: 30, xp: 1,   spin: 0,   locked: 0 },
+    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, spin: 1.4, locked: 0 },
+    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   spin: 2.6, locked: 2 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -7087,7 +7093,7 @@
   const feltMatF = new THREE.MeshStandardMaterial({ map: feltImg || feltTex, bumpMap: feltBump, bumpScale: 0.5, roughness: 0.98, metalness: 0 });
   const leafMat = new THREE.MeshPhysicalMaterial({ map: leafTex, roughness: 0.45, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.35 });
   const FLOORS = { felt: feltMatF, leaf: leafMat, dirt: dirtMat };
-  const metalMat = new THREE.MeshStandardMaterial({ color: 0x6e4f1c, roughness: 0.42, metalness: 0.85, envMapIntensity: 0.35 });   // 황동
+  const metalMat = new THREE.MeshStandardMaterial({ color: 0xd9cdb2, roughness: 0.5, metalness: 0.05, envMapIntensity: 0.25 });   // 상아색 에나멜(초록 판·흙판 모두에서 잘 보이고 눈부심 적음)
   const lockedMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.55, metalness: 0.8, envMapIntensity: 0.35 });   // 고정 막대: 무쇠
   const lockCapMat = new THREE.MeshStandardMaterial({ color: 0xb02020, roughness: 0.4, metalness: 0.3, emissive: 0x400000, emissiveIntensity: 0.4 });   // 고정 표시: 빨간 핀
   const metalHover = new THREE.MeshStandardMaterial({ color: 0xd9b45a, roughness: 0.3, metalness: 1.0, emissive: 0x5a3e0c, emissiveIntensity: 0.6, envMapIntensity: 0.7 });
@@ -7624,7 +7630,7 @@
   function updateOddsUI() {
     document.querySelectorAll('.exit-btn').forEach(b => { const n = +b.dataset.n; b.classList.toggle('lucky', n === lucky); b.innerHTML = `${n === lucky ? '🍀' : ''}${n}번<b>${oddsReady() ? fmtOdds(n) : '…'}</b>`; });
     EXITS.forEach(e => { const t = oddsReady() ? fmtOdds(e.n) : '×…', key = t + (e.n === lucky); if (plates[e.n].last !== key) { plates[e.n].last = key; plates[e.n].draw(t); } });
-    $('oddsInfo').textContent = lucky ? `🍀 이번 판 행운 탈출구: ${lucky}번 — 배당 2배!` : '통로가 좁을수록 배당이 커요 · 막대를 돌려 길을 만드세요';
+    $('oddsInfo').textContent = lucky ? `🍀 이번 판 행운 탈출구: ${lucky}번 — 배당 2배!` : (DIFF[curDiff] || DIFF.normal).spin ? '화살표가 원하는 방향을 가리킬 때 시작!' : '막대를 돌려 화살표 방향으로 길을 만드세요';
     refreshUI();
   }
   let betOdds = 0, curDiff = S.diff || 'normal';
@@ -7634,7 +7640,7 @@
   document.querySelectorAll('.chip').forEach(c => c.onclick = () => { if (phase !== 'idle') return; let v = parseInt(betEl.value) || 0; v = c.dataset.add === 'all' ? coins : v + parseInt(c.dataset.add); betEl.value = Math.max(1, Math.min(coins, v)); refreshUI(); });
   betEl.oninput = refreshUI; goBtn.onclick = startRound;
   function pay(cost, what) { if (coins < cost) { setMsg(`${what}에는 ${cost}코인이 필요합니다.`, 'lose'); return false; } coins -= cost; save(); return true; }
-  $('shuffleBtn').onclick = () => { if (phase !== 'idle' || !pay(1, '랜덤 회전')) return; shuffleBars(); bars.forEach(syncBar); invalidateOdds(); setMsg('막대를 무작위로 돌렸습니다 (-1코인)'); };
+  $('shuffleBtn').onclick = () => { if (phase !== 'idle') return; shuffleBars(); bars.forEach(syncBar); invalidateOdds(); snd.click(); setMsg('막대를 무작위로 돌렸습니다'); };
   $('newBoardBtn').onclick = () => { if (phase !== 'idle' || !pay(2, '새 판')) return; makeBoard(); invalidateOdds(); setMsg('새 판을 깔았습니다 (-2코인)'); };
   $('recBtn').onclick = () => {
     const r = S.rec; $('recList').innerHTML = [['레벨', `Lv.${S.level} (${keyTierOf(S.level).name})`], ['보유 코인', coins], ['최고 보유 코인', r.maxCoins], ['최고 배당 적중', r.bestOdds ? '×' + r.bestOdds : '-'], ['한 판 최대 획득', r.bestWin], ['최다 연승', r.bestStreak], ['플레이 / 승리', `${r.rounds}판 / ${r.wins}승`], ['연속 출석', `${S.streakDays}일`]].map(x => `<span>${x[0]}</span><span>${x[1]}</span>`).join('');
@@ -7669,7 +7675,7 @@
   function setMsg(t, cls) { msgEl.textContent = t; msgEl.className = 'msg' + (cls ? ' ' + cls : ''); }
   function addLog(t) { const d = document.createElement('div'); d.textContent = t; logEl.prepend(d); }
   function refreshUI() {
-    coinsEl.textContent = coins; $('newBoardBtn').disabled = phase !== 'idle';
+    coinsEl.textContent = coins; $('newBoardBtn').disabled = $('shuffleBtn').disabled = phase !== 'idle';
     betAmt = Math.max(1, Math.min(Math.max(coins, 1), parseInt(betEl.value) || 1)); betEl.value = betAmt;
     document.querySelectorAll('.exit-btn').forEach(b => { b.classList.toggle('sel', +b.dataset.n === selExit); b.disabled = phase !== 'idle'; });
     EXITS.forEach(e => { pocketMeshes[e.n].material = (lastExit === e.n && phase === 'idle') ? feltWin : (selExit === e.n ? feltSel : feltMat); });
@@ -7687,7 +7693,7 @@
     hideOverlay(); refreshUI(); if (betAmt > coins || !oddsReady()) return;
     pauseOdds(); betOdds = odds[selExit]; S.allIn = betAmt >= 10 && betAmt === coins;
     coins -= betAmt; save(); phase = 'winding'; windT = 0; lastExit = 0; particles.forEach(p => scene.remove(p.m)); particles = [];
-    { const keepAng = bug && (DIFF[curDiff] || DIFF.normal).showDir ? bug.ang : null; bug = spawnBug(); if (keepAng !== null) { bug.ang = keepAng; updateBody(bug); } }   // 쉬움: 보여준 방향 그대로 출발
+    { const keepAng = bug ? bug.ang : null; bug = spawnBug(); if (keepAng !== null) { bug.ang = keepAng; updateBody(bug); } }   // 시작 누른 순간 바라보던 방향 그대로 출발(타이밍)
     setExpr('mischief'); snd.windup(); acc = 0;
     if (isPortrait()) document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });   // 폰: 시작하면 게임판으로 올라가기
     setMsg(`${selExit}번 탈출구(${fmtOdds(selExit)})에 ${betAmt}코인 베팅! 태엽 무당벌레 방출...`); refreshUI();
@@ -7801,8 +7807,8 @@
       hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = ''; }, 1500);
     }
     if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9;
-      if (!(DIFF[curDiff] || DIFF.normal).showDir) { bug.ang += dt * 0.8; updateBody(bug); } }   // 보통·어려움: 방향을 숨기려고 제자리에서 천천히 빙글
-    { const show = !!bug && phase === 'idle' && !oOn && (DIFF[curDiff] || DIFF.normal).showDir; dirArrow.visible = show;
+      const spin = (DIFF[curDiff] || DIFF.normal).spin; if (spin) { bug.ang += dt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
+    { const show = !!bug && (phase === 'idle' || phase === 'winding') && !oOn; dirArrow.visible = show;
       if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children.forEach(m => m.material.opacity = 0.7 + Math.sin(now * 0.006) * 0.25); } }   // 멈춘 뒤엔 미세하게만
     syncBug();
     particles.forEach(p => { p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt; p.vy -= 420 * dt; p.m.rotation.x += p.rx * dt; p.m.rotation.z += p.rz * dt; p.life -= dt; if (p.m.position.y < 2) { p.m.position.y = 2; p.vy *= -0.35; p.vx *= 0.8; p.vz *= 0.8; } });
@@ -7818,8 +7824,9 @@
   if (location.search.indexOf('sim') >= 0) window.__lb = {
     setDiff(v) { $('diff').value = v; curDiff = v; makeBoard(); }, bars: () => bars, stage: v => applyStage(v),
     rot(b, a) { return rotateBarTo(b, a); },
-    play(n, ang) { const keep = bug; SIM = true; segCache = null; segCache = segments(); const cnt = [0, 0, 0, 0, 0, 0, 0]; let to = 0;
-      for (let i = 0; i < n; i++) { bug = spawnBug(); if (ang != null) { bug.ang = ang; updateBody(bug); } let t = 0, ex = 0; while (t < 45 && !ex) { ex = stepBug(1 / 60); t += 1 / 60; } if (ex) cnt[ex]++; else to++; }
+    play(n, ang, sd) { const keep = bug; SIM = true; segCache = null; segCache = segments(); const cnt = [0, 0, 0, 0, 0, 0, 0]; let to = 0;
+      const gauss = () => Math.sqrt(-2 * Math.log(Math.random() || 1e-9)) * Math.cos(2 * Math.PI * Math.random());
+      for (let i = 0; i < n; i++) { bug = spawnBug(); if (ang != null) { bug.ang = ang + (sd ? gauss() * sd : 0); updateBody(bug); } let t = 0, ex = 0; while (t < 45 && !ex) { ex = stepBug(1 / 60); t += 1 / 60; } if (ex) cnt[ex]++; else to++; }
       SIM = false; segCache = null; bug = keep; return { cnt, to }; },
   };
   fitView(); applyKeyTier(S.level); applyStage(S.level >= VILLAGE_LV ? 'village' : 'casino'); makeBoard(); bug = spawnBug(); setExpr('happy'); invalidateOdds(); refreshUI(); requestAnimationFrame(loop);
