@@ -205,7 +205,7 @@
     <li><b>타이밍을 맞춰 시작!</b> 무당벌레는 시작 버튼을 누른 순간 바라보던 방향(화살표)으로 출발해 무조건 직진하고, 막히면 밀면서 조금씩 몸을 틉니다.</li>
   </ol>
   <h4>난이도</h4>
-  <p><b>쉬움</b> 무당벌레가 가만히 있어 방향이 정해져 있습니다.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작!<br><b>어려움</b> 더 빠르게 돌고, 돌릴 수 없는 빨간 핀 고정 막대가 2개 있습니다.</p>
+  <p><b>쉬움</b> 무당벌레가 가만히 있고, 긴 막대 8개로 넉넉히 길을 만들 수 있어요.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작! 막대 7개 + 쇠 블록 1개.<br><b>어려움</b> 더 빠르게 돌고, 짧은 막대 6개 중 2개는 못 돌리는 빨간 핀 막대, 쇠 블록 2개.</p>
   <h4>보상</h4>
   <p>맞히면 베팅 × 배당, 3연승부터 +10%. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
@@ -6886,9 +6886,10 @@
   // 막대: 폰에서도 잡기 쉽게 최소 길이 95px·두께 18px. 쉬움은 막대 수를 줄여 갇힘(시간초과)을 줄임
   const DIFF = {
     // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
-    easy:   { cols: 3, rows: 3, count: 6,  len: [90, 120], jitter: 30, xp: 1,   spin: 0,   locked: 0 },
-    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, spin: 1.4, locked: 0 },
-    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   spin: 2.6, locked: 2 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
+    // 쉬울수록 도구(막대)가 많고 길게, 어려울수록 적고 짧게 + 고정 장애물(blocks)
+    easy:   { cols: 3, rows: 3, count: 8, len: [100, 135], jitter: 30, xp: 1,   spin: 0,   locked: 0, blocks: 0 },
+    normal: { cols: 3, rows: 3, count: 7, len: [90, 120],  jitter: 32, xp: 1.5, spin: 1.9, locked: 0, blocks: 1 },
+    hard:   { cols: 3, rows: 3, count: 6, len: [80, 105],  jitter: 32, xp: 2,   spin: 2.6, locked: 2, blocks: 2 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -6918,7 +6919,8 @@
   }
   let segCache = null;
   function boxed(s) { const h = s.t / 2; s.minx = Math.min(s.x1, s.x2) - h; s.maxx = Math.max(s.x1, s.x2) + h; s.miny = Math.min(s.y1, s.y2) - h; s.maxy = Math.max(s.y1, s.y2) + h; return s; }
-  function segments() { if (segCache) return segCache; if (!staticSegs) staticSegs = buildStaticSegs().map(boxed); return staticSegs.concat(bars.map(b => boxed({ ...barEnds(b), t: BAR_T, bar: 1 }))); }
+  let blocks = [];   // 판마다 새로 놓는 고정 장애물(쇠 블록)
+  function segments() { if (segCache) return segCache; if (!staticSegs) staticSegs = buildStaticSegs().map(boxed); return staticSegs.concat(blocks, bars.map(b => boxed({ ...barEnds(b), t: BAR_T, bar: 1 }))); }
   const FAR = (px, py, s) => px < s.minx - 30 || px > s.maxx + 30 || py < s.miny - 30 || py > s.maxy + 30;
   function closestOnSeg(px, py, s) {
     const vx = s.x2 - s.x1, vy = s.y2 - s.y1, len2 = vx * vx + vy * vy || 1;
@@ -6952,6 +6954,18 @@
   function makeBoard() {
     bars.forEach(b => { if (b.mesh) scene.remove(b.mesh); if (b.baseMesh) scene.remove(b.baseMesh); }); bars = [];
     const d = DIFF[$('diff').value] || DIFF.normal;
+    // 고정 장애물(쇠 블록): 가운데·벽·돌담·서로에서 떨어진 곳에
+    blocks.forEach(k => k.mesh && scene.remove(k.mesh)); blocks = []; staticSegs = null; segCache = null;
+    for (let n = 0, tries = 0; n < (d.blocks || 0) && tries < 200; tries++) {
+      const x = rnd(BOARD.x + 80, BOARD.x + BOARD.w - 80), y = rnd(BOARD.y + 80, BOARD.y + BOARD.h - 80);
+      if (Math.hypot(x - CX, y - CY) < 120) continue;
+      if (blocks.some(k => Math.hypot(x - k.cx, y - k.cy) < 150)) continue;
+      if (stage === 'village' && STONES.some(st => distToSeg(x, y, st) < 80)) continue;
+      const a = Math.floor(rnd(0, 4)) * Math.PI / 4, hl = 26;
+      const k = boxed({ x1: x - Math.cos(a) * hl, y1: y - Math.sin(a) * hl, x2: x + Math.cos(a) * hl, y2: y + Math.sin(a) * hl, t: 24, block: 1, cx: x, cy: y, a });
+      blocks.push(k); n++; }
+    blocks.forEach(k => buildBlockMesh(k));
+    const obst = (stage === 'village' ? STONES.map(st => ({ ...st, t: STONE_T })) : []).concat(blocks);
     const sx = BOARD.w / (d.cols + 1), sy = BOARD.h / (d.rows + 1);
     const want = d.count - (stage === 'village' ? 1 : 0);   // 돌담길은 돌담이 있으니 막대 1개 덜
     const cells = []; for (let i = 1; i <= d.cols; i++) for (let j = 1; j <= d.rows; j++) cells.push([i, j]);
@@ -6959,8 +6973,8 @@
     for (const [i, j] of cells) { if (bars.length >= want) break;
       let px = BOARD.x + sx * i + rnd(-d.jitter, d.jitter), py = BOARD.y + sy * j + rnd(-30, 30);
       if (Math.hypot(px - CX, py - CY) < 70) px += (px < CX ? -60 : 60);
-      if (stage === 'village') {   // 핀(축)은 돌담에서 충분히 떨어진 곳에만
-        const near = (x, y) => STONES.some(s => distToSeg(x, y, s) < STONE_T / 2 + 34);
+      if (obst.length) {   // 핀(축)은 돌담·쇠 블록에서 충분히 떨어진 곳에만
+        const near = (x, y) => obst.some(s => distToSeg(x, y, s) < s.t / 2 + 34);
         let k = 0; const bx = BOARD.x + sx * i, by = BOARD.y + sy * j;
         while (near(px, py) && k < 20) { px = bx + rnd(-sx * 0.42, sx * 0.42); py = by + rnd(-sy * 0.42, sy * 0.42); k++; }
         if (near(px, py) || Math.hypot(px - CX, py - CY) < 70) continue;
@@ -7239,6 +7253,15 @@
     const base = new THREE.Mesh(gearGeo(8, 10, 1.6), darkBrass); base.position.set(b.px, 0.3, b.py); base.receiveShadow = true; scene.add(base); b.baseMesh = base;
     g.add(body, groove, gb, gs, pin, cap); g.position.set(b.px, 0, b.py); scene.add(g);
     b.mesh = g; b.body = body; syncBar(b);
+  }
+  const blockMat = new THREE.MeshStandardMaterial({ color: 0x34383f, roughness: 0.5, metalness: 0.75, envMapIntensity: 0.4 });
+  const blockTopMat = new THREE.MeshStandardMaterial({ color: 0xb02020, roughness: 0.45, metalness: 0.3, emissive: 0x3a0000, emissiveIntensity: 0.4 });
+  function buildBlockMesh(k) {   // 고정 쇠 블록 + 빨간 띠(고정 표시)
+    const g = new THREE.Group(), L = 52 + 24, H = 22;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(L, H, 24), blockMat); body.position.y = H / 2; body.castShadow = body.receiveShadow = true;
+    const band = new THREE.Mesh(new THREE.BoxGeometry(L - 8, 1.2, 8), blockTopMat); band.position.y = H + 0.6;
+    [-1, 1].forEach(sd => { const rv = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 1.4, 10), darkBrass); rv.position.set(sd * (L / 2 - 8), H + 0.7, 0); g.add(rv); });
+    g.add(body, band); g.position.set(k.cx, 0, k.cy); g.rotation.y = -k.a; scene.add(g); k.mesh = g;
   }
   function syncBar(b) { b.mesh.rotation.y = -b.ang; b.body.material = b.locked ? lockedMat : b.hover ? metalHover : metalMat; }
 
@@ -7555,6 +7578,8 @@
             rec: { maxCoins: 20, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, ach: {} };
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(S, o); S.rec = Object.assign({ maxCoins: 0, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, o.rec || {}); S.ach = o.ach || {}; } } catch (e) {}
   coins = S.coins;
+  // 테스트용: 주소 끝에 #coins=500 을 붙여 열면 코인을 그 값으로 맞춤(주소는 바로 지움)
+  { const m = location.hash.match(/coins=(\d+)/); if (m) { coins = S.coins = Math.min(99999, +m[1]); S.brokeAt = 0; try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} history.replaceState(null, '', location.pathname + location.search); } }
   function save() { S.coins = coins; S.rec.maxCoins = Math.max(S.rec.maxCoins, coins); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
   const dayStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   // ── 레벨 ──
