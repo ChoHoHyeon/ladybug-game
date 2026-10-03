@@ -37,6 +37,7 @@
   .exits{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
   .exit-btn{background:linear-gradient(#6e1c22,#4a1116);border:2px solid #2d0a0d;color:#fff;border-radius:10px;padding:9px 4px;cursor:pointer;font-size:13px;line-height:1.25;transition:.15s}
   .exit-btn b{display:block;font-size:19px;color:var(--gold);font-family:Georgia,serif}
+  .exit-btn.lucky{border-color:#5fd38a;box-shadow:0 0 12px rgba(95,211,138,.45)}
   .exit-btn.sel{border-color:var(--gold);background:linear-gradient(#a8323a,#6e1c22);box-shadow:0 0 14px rgba(233,196,106,.45);transform:translateY(-1px)}
   .exit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
   .row{display:flex;gap:6px;align-items:center;margin:8px 0}
@@ -100,7 +101,7 @@
 </header>
 
 <div class="wrap">
-  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint">막대 클릭 = 시계방향 45° · 우클릭 = 반시계 · 드래그 = 자유 회전 · 화면 드래그(빈 곳) = 시점 회전</div></div>
+  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div></div>
 
   <div class="panel">
     <h2>BETTING</h2>
@@ -112,6 +113,8 @@
     <div class="row">
       <label>베팅 코인</label>
       <input type="number" id="bet" min="1" value="1">
+      <button class="chip" data-add="-5">-5</button>
+      <button class="chip" data-add="-1">-1</button>
       <button class="chip" data-add="1">+1</button>
       <button class="chip" data-add="5">+5</button>
       <button class="chip" data-add="all">올인</button>
@@ -124,7 +127,7 @@
     </div>
     <div class="msg" id="msg">막대를 탭하면 45° 회전, 끌면 자유 회전. 막대를 다 돌리면 배당이 다시 계산됩니다.</div>
     <div class="opt">
-      <label>난이도 <select id="diff"><option value="easy">쉬움 (XP×1)</option><option value="normal" selected>보통 (XP×1.5)</option><option value="hard">어려움 (배당·XP 1.5~2배)</option></select></label>
+      <label>난이도 <select id="diff"><option value="easy">쉬움 (XP×1)</option><option value="normal" selected>보통 (XP×1.5)</option><option value="hard">어려움 (XP×2)</option></select></label>
       <label>속도 <select id="speed"><option value="0.7">느림</option><option value="1" selected>보통</option><option value="1.4">빠름</option></select></label>
       <label>그래픽 <select id="quality"><option value="auto" selected>자동</option><option value="high">높음</option><option value="mid">보통</option><option value="low">낮음</option></select></label>
       <label>바닥 <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select></label>
@@ -135,7 +138,8 @@
     <div class="help">
       <b>규칙</b><br>
       · 탈출구마다 <b>배당이 고정</b>돼 있습니다(×2·×3·×5). 통로가 좁을수록 배당이 큽니다. 막대를 돌려 원하는 탈출구로 길을 만드세요.<br>
-      · <b>쉬움</b>은 무당벌레가 출발할 방향을 화살표로 보여줍니다. 보통·어려움은 방향이 숨겨져 있고, 어려움에는 돌릴 수 없는 <b>빨간 핀 고정 막대</b>가 2개 있는 대신 <b>배당이 1.5배</b>(×3·×4.5·×7.5)입니다.<br>
+      · <b>쉬움</b>은 무당벌레가 출발할 방향을 화살표로 보여줍니다. 보통·어려움은 방향이 숨겨져 있고, 어려움에는 돌릴 수 없는 <b>빨간 핀 고정 막대</b>가 2개 있습니다.<br>
+      · 🍀 <b>행운 탈출구</b>: 보통·어려움에서는 매 판 탈출구 하나가 무작위로 골라져 배당이 <b>2배</b>가 됩니다.<br>
       · 막대는 핀에 꽂혀 <b>회전만</b> 됩니다. 다른 막대나 벽에 걸리면 멈춥니다. 랜덤 회전 1코인, 새 판 2코인.<br>
       · 태엽 무당벌레는 <b>무조건 직진</b>합니다. 막히면 밀면서 조금씩 몸을 틀어 빠져나갑니다.<br>
       · 맞히면 <b>베팅 × 배당</b>, 3연승부터 <b>연승 보너스 +10%</b>. 시간 초과는 <b>무효(전액 환불)</b>.<br>
@@ -6809,7 +6813,7 @@
   // ── Lv.5 시골 돌담길 무대: 판 안의 고정 돌담(회전 불가 장애물) ──
   const VILLAGE_LV = 5, STONE_T = 22, STONE_H = 30;
   const STONES = [ { x1: -95, y1: -122, x2: 45, y2: -138 }, { x1: -40, y1: 136, x2: 100, y2: 120 } ];
-  let stage = 'casino';
+  let stage = 'casino', lucky = 0;   // lucky: 행운 탈출구 번호(0=없음)
   const rnd = (a, b) => a + Math.random() * (b - a);
   const $ = id => document.getElementById(id);
 
@@ -6819,8 +6823,8 @@
   const DIFF = {
     // count: 막대 수(격자 칸 중 무작위 선택) · showDir: 출발 방향 화살표 · locked: 돌릴 수 없는 고정 막대 수
     easy:   { cols: 3, rows: 3, count: 6,  len: [90, 120], jitter: 30, xp: 1,   showDir: true, locked: 0 },
-    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, showDir: false, locked: 0 },
-    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   showDir: false, locked: 2, pay: 1.5 },   // 어려움은 배당 1.5배(×3/×4.5/×7.5)
+    normal: { cols: 3, rows: 3, count: 8,  len: [85, 115], jitter: 32, xp: 1.5, showDir: false, locked: 0, luck: true },
+    hard:   { cols: 4, rows: 3, count: 10, len: [80, 110], jitter: 24, xp: 2,   showDir: false, locked: 2, luck: true },
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -6907,6 +6911,7 @@
     bars.forEach(b => { let tries = 0; while (barCollides(b, b.ang) && tries < 40) { b.ang = Math.floor(rnd(0, 8)) * Math.PI / 4; if (++tries % 8 === 0) { b.len *= 0.85; b.off *= 0.85; } } });
     bars.slice().sort(() => Math.random() - 0.5).slice(0, d.locked || 0).forEach(b => b.locked = true);   // 어려움: 고정 막대
     bars.forEach(b => buildBarMesh(b));
+    if (typeof rollLucky === 'function' && typeof curDiff !== 'undefined') rollLucky();
   }
   function shuffleBars() { bars.forEach(b => { if (!b.locked) rotateBarTo(b, b.ang + rnd(-Math.PI, Math.PI)); }); }
 
@@ -6952,7 +6957,7 @@
     const t = Math.tan(THREE.MathUtils.degToRad(19)), hw = 400, hd = 330;
     camDist = Math.max(hw / (t * camera.aspect), hd * Math.sin(camPitch) / t) * 1.02; camMin = camDist * 0.7; camMax = camDist * 1.3;
     placeCamera(); if (typeof setupPost === 'function' && scene) setupPost();
-    hint.textContent = port ? '막대 탭 = 45° 회전 · 끌기 = 자유 회전' : '막대 클릭 = 시계방향 45° · 우클릭 = 반시계 · 드래그 = 자유 회전 · 빈 곳 드래그 = 시점 회전';
+    hint.textContent = '';   // 화면 위 안내 글씨는 지저분해서 제거 (남은 시간만 표시)
   }
   function placeCamera() {
     camera.position.set(Math.sin(camYaw) * Math.cos(camPitch) * camDist, Math.sin(camPitch) * camDist, Math.cos(camYaw) * Math.cos(camPitch) * camDist);
@@ -7074,7 +7079,7 @@
     // 명판 텍스처
     const drawP = (c, w, h, txt) => {
       c.clearRect(0, 0, w, h);
-      c.textAlign = 'center'; c.fillStyle = '#f1ece4'; c.font = '700 56px sans-serif'; c.shadowColor = 'rgba(0,0,0,.8)'; c.shadowBlur = 8; c.fillText(e.n + '번', w / 2, 80);
+      c.textAlign = 'center'; c.fillStyle = '#f1ece4'; c.font = '700 56px sans-serif'; c.shadowColor = 'rgba(0,0,0,.8)'; c.shadowBlur = 8; c.fillText(e.n === lucky ? '🍀2배' : e.n + '번', w / 2, 80);
       const gg = c.createLinearGradient(0, 150, 0, 260); gg.addColorStop(0, '#fff2c4'); gg.addColorStop(.5, '#e9c46a'); gg.addColorStop(1, '#a8842e');
       const big = txt.length > 4; c.fillStyle = gg; c.font = `bold ${big ? 84 : 112}px Georgia,serif`; c.shadowColor = 'rgba(0,0,0,.7)'; c.shadowBlur = 12; c.fillText(txt, w / 2, 250);
     };
@@ -7560,13 +7565,15 @@
     computeOdds(); updateOddsUI(); if (oddsN < ODDS_TARGET) oddsJob = setTimeout(oddsTick, 0);
   }
   // 배당은 탈출구마다 고정(×2/×3/×5) — 막대를 돌려 길을 만드는 것이 곧 실력
-  function invalidateOdds() { if (oddsJob) clearTimeout(oddsJob); oddsJob = null; odds = {}; EXITS.forEach(e => odds[e.n] = e.mult * ((DIFF[curDiff] || DIFF.normal).pay || 1)); oddsN = ODDS_TARGET; oddsTO = 0; updateOddsUI(); }
+  // 🍀 행운 탈출구(보통·어려움): 매 판 하나를 골라 배당 2배 — 이벤트 보너스
+  function rollLucky() { lucky = (DIFF[curDiff] || DIFF.normal).luck ? 1 + Math.floor(Math.random() * 6) : 0; }
+  function invalidateOdds() { if (oddsJob) clearTimeout(oddsJob); oddsJob = null; odds = {}; EXITS.forEach(e => odds[e.n] = e.mult * (e.n === lucky ? 2 : 1)); oddsN = ODDS_TARGET; oddsTO = 0; updateOddsUI(); }
   function pauseOdds() { oddsPaused = true; if (oddsJob) { clearTimeout(oddsJob); oddsJob = null; } }
   function fmtOdds(n) { const v = odds[n]; return v ? '×' + (Number.isInteger(v) ? v : v >= 10 ? Math.round(v) : v.toFixed(1)) : '×…'; }
   function updateOddsUI() {
-    document.querySelectorAll('.exit-btn').forEach(b => { const n = +b.dataset.n; b.innerHTML = `${n}번<b>${oddsReady() ? fmtOdds(n) : '…'}</b>`; });
-    EXITS.forEach(e => { const t = oddsReady() ? fmtOdds(e.n) : '×…'; if (plates[e.n].last !== t) { plates[e.n].last = t; plates[e.n].draw(t); } });
-    $('oddsInfo').textContent = '통로가 좁을수록 배당이 커요 · 막대를 돌려 길을 만드세요';
+    document.querySelectorAll('.exit-btn').forEach(b => { const n = +b.dataset.n; b.classList.toggle('lucky', n === lucky); b.innerHTML = `${n === lucky ? '🍀' : ''}${n}번<b>${oddsReady() ? fmtOdds(n) : '…'}</b>`; });
+    EXITS.forEach(e => { const t = oddsReady() ? fmtOdds(e.n) : '×…', key = t + (e.n === lucky); if (plates[e.n].last !== key) { plates[e.n].last = key; plates[e.n].draw(t); } });
+    $('oddsInfo').textContent = lucky ? `🍀 이번 판 행운 탈출구: ${lucky}번 — 배당 2배!` : '통로가 좁을수록 배당이 커요 · 막대를 돌려 길을 만드세요';
     refreshUI();
   }
   let betOdds = 0, curDiff = S.diff || 'normal';
@@ -7632,7 +7639,7 @@
         showOverlay('베팅 성공!', `${exitN}번 탈출구 ${odTxt}<br>${betAmt}코인 → <b>${win}코인</b>` + (bonus ? `<br>${S.winStreak}연승 보너스 +10%` : ''), 'win', 'win', 'win');
         const g = exitGeom(e), px = e.side === 'L' ? g.x - POCKET_W / 2 : g.x + POCKET_W / 2;
         for (let i = 0; i < 36; i++) { const m = new THREE.Mesh(coinGeo, goldMat); m.position.set(px, 30, g.cy); m.castShadow = true; scene.add(m); particles.push({ m, vx: rnd(-90, 90), vy: rnd(120, 260), vz: rnd(-90, 90), life: rnd(1.2, 2.2), rx: rnd(-6, 6), rz: rnd(-6, 6) }); }
-        unlock('first_win'); if (betOdds >= 5) { S.rec.x5 = (S.rec.x5 || 0) + 1; unlock('odds5'); if (S.rec.x5 >= 3) unlock('odds10'); if (S.rec.x5 >= 10) unlock('odds20'); }
+        unlock('first_win'); if (EXITS[selExit - 1].mult === 5) { S.rec.x5 = (S.rec.x5 || 0) + 1; unlock('odds5'); if (S.rec.x5 >= 3) unlock('odds10'); if (S.rec.x5 >= 10) unlock('odds20'); }
         if (S.winStreak >= 3) unlock('streak3'); if (S.winStreak >= 5) unlock('streak5'); if (S.allIn) unlock('allin'); if (curDiff === 'hard') unlock('hard_win');
         gainXp(betAmt * dx + 5);
       } else {
@@ -7646,7 +7653,7 @@
     if (coins >= 500) unlock('rich500'); if (coins >= 2000) unlock('rich2000');
     save();
     if (parseInt(betEl.value) > coins) betEl.value = Math.max(1, coins);
-    refreshUI(); invalidateOdds();
+    rollLucky(); refreshUI(); invalidateOdds();
     setTimeout(() => { if (phase === 'idle' && !oOn && bug) { bug = spawnBug(); setExpr('happy'); } }, 1200);
     if (coins <= 0) { S.brokeAt = Date.now(); save(); notify('코인이 다 떨어졌어요', `2시간 뒤 무당벌레가 <b>${refillAmt()}코인</b>을 주워 와요<br>내일 출석 보너스도 잊지 마세요!`); }
   }
@@ -7716,7 +7723,7 @@
       if (now - hintT > 100) { hintT = now; hint.textContent = lim ? `남은 시간 ${Math.max(0, lim - el).toFixed(1)}초` : `경과 ${el.toFixed(1)}초`; }
       if (exitN) endRound(exitN, false); else if (lim && el > lim) endRound(0, true);
     } else if (phase === 'idle' && !hintReset && (hint.textContent.startsWith('남은') || hint.textContent.startsWith('경과'))) {
-      hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = '막대 클릭 = 시계방향 45° · 우클릭 = 반시계 · 드래그 = 자유 회전 · 빈 곳 드래그 = 시점 회전 · 휠 = 확대'; }, 1500);
+      hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = ''; }, 1500);
     }
     if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9;
       if (!(DIFF[curDiff] || DIFF.normal).showDir) { bug.ang += dt * 0.8; updateBody(bug); } }   // 보통·어려움: 방향을 숨기려고 제자리에서 천천히 빙글
