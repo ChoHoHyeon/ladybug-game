@@ -56,7 +56,7 @@
   .obtn{margin-top:12px;padding:10px 28px;border:none;border-radius:12px;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 16px rgba(233,196,106,.25)}
   .hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:13px;font-weight:700;color:#f1e6c8;text-shadow:0 1px 4px #000;pointer-events:none}
   /* 베팅 패널 */
-  .panel{background:var(--card);border:1px solid #2c2731;border-radius:18px;padding:16px;width:330px;box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
+  .panel{background:var(--card);border:1px solid #2c2731;border-radius:18px;padding:16px;width:350px;box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
   .prof{display:flex;align-items:center;gap:8px;margin:0 0 8px}
   .lv{background:linear-gradient(#3a2a12,#22180a);border:1px solid #6b5222;color:var(--gold);font-weight:800;font-size:13px;border-radius:8px;padding:3px 9px;white-space:nowrap}
   .xpbar{flex:1;height:6px;background:#0b0a0d;border:1px solid #2c2731;border-radius:6px;overflow:hidden}
@@ -73,16 +73,20 @@
   .exit-btn.sel{border-color:var(--gold);background:linear-gradient(#a8323a,#6e1c22);box-shadow:0 0 16px rgba(233,196,106,.5);transform:translateY(-1px)}
   .exit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
   /* 베팅 수량: − 숫자 + / MAX */
-  .bet{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .bet{display:flex;align-items:center;gap:8px;margin:0 0 12px}
   .blabel{font-size:12px;color:var(--muted);letter-spacing:1px}
-  .stepper{flex:1;display:flex;align-items:center;height:46px;border-radius:999px;background:#0b0a0d;border:1px solid var(--line);box-shadow:inset 0 2px 6px rgba(0,0,0,.6);overflow:hidden}
-  .stepper input{flex:1;min-width:0;width:100%;height:100%;background:transparent;border:none;color:var(--gold);font-size:22px;font-weight:800;text-align:center;font-family:Georgia,serif;outline:none;-moz-appearance:textfield}
+  .stepper{flex:1;min-width:0;display:flex;align-items:center;height:46px;border-radius:999px;background:#0b0a0d;border:1px solid var(--line);box-shadow:inset 0 2px 6px rgba(0,0,0,.6);overflow:hidden}
+  .stepper input{flex:1;min-width:44px;width:100%;height:100%;background:transparent;border:none;color:var(--gold);font-size:22px;font-weight:800;text-align:center;font-family:Georgia,serif;outline:none;-moz-appearance:textfield}
   .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .chip{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-  .chip.step{width:46px;height:46px;border:none;background:transparent;color:var(--gold);font-size:26px;line-height:1}
+  .chip.step{width:38px;height:46px;flex:none;border:none;background:transparent;color:var(--gold);font-size:26px;line-height:1}
   .chip.step:active{background:rgba(233,196,106,.12)}
-  .chip.maxb{height:46px;padding:0 14px;border-radius:999px;border:1px solid rgba(233,196,106,.55);background:linear-gradient(#2c2418,#18130c);color:var(--gold);font-weight:800;font-size:13px;letter-spacing:1px}
+  .chip.step.five{width:40px;font-size:14px;font-weight:800;color:#cfa94e;letter-spacing:-.5px}
+  .chip.step.five:first-child{border-right:1px solid rgba(233,196,106,.15)}
+  .chip.step.five:last-child{border-left:1px solid rgba(233,196,106,.15)}
+  .chip.maxb{height:46px;flex:none;padding:0 11px;border-radius:999px;border:1px solid rgba(233,196,106,.55);background:linear-gradient(#2c2418,#18130c);color:var(--gold);font-weight:800;font-size:13px;letter-spacing:1px}
   .chip.maxb:active{transform:scale(.95)}
+  .chip.maxb.min{color:#d9cfb8;border-color:rgba(233,196,106,.3);background:linear-gradient(#211d24,#141117)}
   button.main{width:100%;padding:15px;font-size:17px;font-weight:800;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;box-shadow:0 8px 22px rgba(233,196,106,.28),inset 0 1px 0 rgba(255,255,255,.5);letter-spacing:.5px}
   button.main:disabled{background:#26222b;color:#77716a;box-shadow:none;cursor:not-allowed}
   .msg{min-height:20px;margin-top:10px;font-size:13px;text-align:center;color:var(--muted)}
@@ -121,6 +125,7 @@
     .stage{width:100%}
     .panel{width:100%;padding:14px}
     .coins{font-size:32px}
+    .bet{gap:6px} .chip.step{width:34px} .chip.step.five{width:38px} .chip.maxb{padding:0 10px;font-size:12px}
     .exit-btn{padding:12px 4px;font-size:14px}
     .exit-btn b{font-size:22px}
     button.main{padding:17px;font-size:17px}
@@ -155,11 +160,13 @@
     <div class="oddsinfo" id="oddsInfo"></div>
     <div class="exits" id="exitBtns"></div>
     <div class="bet">
-      <span class="blabel">베팅</span>
+      <button class="chip maxb min" data-add="min" title="최저 베팅(1코인)">MIN</button>
       <div class="stepper">
+        <button class="chip step five" data-add="-5" aria-label="5 줄이기">−5</button>
         <button class="chip step" data-add="-1" aria-label="1 줄이기">−</button>
         <input type="number" id="bet" min="1" value="1" inputmode="numeric">
         <button class="chip step" data-add="1" aria-label="1 늘리기">+</button>
+        <button class="chip step five" data-add="5" aria-label="5 늘리기">+5</button>
       </div>
       <button class="chip maxb" data-add="all">MAX</button>
     </div>
@@ -171,7 +178,7 @@
 <!-- 실제 설정값 보관용(화면에는 안 보임) -->
 <div hidden>
   <select id="diff"><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option></select>
-  <select id="speed"><option value="0.7">느림</option><option value="1" selected>보통</option><option value="1.4">빠름</option></select>
+  <select id="speed"><option value="1">느림</option><option value="1.4" selected>보통</option><option value="1.8">빠름</option></select>
   <select id="quality"><option value="auto" selected>자동</option><option value="high">높음</option><option value="mid">보통</option><option value="low">낮음</option></select>
   <select id="floor"><option value="felt" selected>카지노 펠트</option><option value="leaf">잎사귀</option><option value="dirt">흙판</option></select>
   <select id="limit"><option value="30">30초</option><option value="45" selected>45초</option><option value="60">60초</option></select>
@@ -183,7 +190,7 @@
   <h3>설정</h3>
   <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판 · 2코인</small></div><div class="seg" data-for="diff">
     <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>천천히 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
-  <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="0.7">느림</button><button data-v="1">보통</button><button data-v="1.4">빠름</button></div></div>
+  <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
   <div class="sgroup"><div class="slabel">그래픽</div><div class="seg" data-for="quality"><button data-v="auto">자동</button><button data-v="high">높음</button><button data-v="mid">보통</button><button data-v="low">낮음</button></div></div>
@@ -202,7 +209,7 @@
   <h4>보상</h4>
   <p>맞히면 베팅 × 배당, 3연승부터 +10%. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
-  <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대<br>🎲 랜덤 배치(무료)는 막대 방향만, ⟳ 새 판(2코인)은 핀 위치까지 새로 깝니다.</p>
+  <p>막대 클릭 시계방향 · 우클릭 반시계 · 드래그 자유 회전 · 빈 곳 드래그 시점 · 휠 확대 · <b>스페이스바 시작</b><br>🎲 랜덤 배치(무료)는 막대 방향만, ⟳ 새 판(2코인)은 핀 위치까지 새로 깝니다.</p>
   <button class="obtn mclose">닫기</button>
 </div></div>
 
@@ -7640,7 +7647,7 @@
   const msgEl = $('msg'), coinsEl = $('coins'), goBtn = $('goBtn'), betEl = $('bet'), logEl = $('log');
   const exitWrap = $('exitBtns');
   EXITS.forEach(e => { const b = document.createElement('button'); b.className = 'exit-btn'; b.dataset.n = e.n; b.innerHTML = `${e.n}번<b>…</b>`; b.onclick = () => { if (phase !== 'idle') return; selExit = e.n; refreshUI(); }; exitWrap.appendChild(b); });
-  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { if (phase !== 'idle') return; let v = parseInt(betEl.value) || 0; v = c.dataset.add === 'all' ? coins : v + parseInt(c.dataset.add); betEl.value = Math.max(1, Math.min(coins, v)); refreshUI(); });
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { if (phase !== 'idle') return; let v = parseInt(betEl.value) || 0; v = c.dataset.add === 'all' ? coins : c.dataset.add === 'min' ? 1 : v + parseInt(c.dataset.add); betEl.value = Math.max(1, Math.min(coins, v)); refreshUI(); });
   betEl.oninput = refreshUI; goBtn.onclick = startRound;
   function pay(cost, what) { if (coins < cost) { setMsg(`${what}에는 ${cost}코인이 필요합니다.`, 'lose'); return false; } coins -= cost; save(); return true; }
   $('shuffleBtn').onclick = () => { if (phase !== 'idle') return; shuffleBars(); bars.forEach(syncBar); invalidateOdds(); snd.click(); setMsg('막대를 무작위로 돌렸습니다'); };
@@ -7653,7 +7660,8 @@
   $('diff').value = curDiff;
   // ── 설정 화면(세그먼트 버튼) · 소리 · 게임 방법 ──
   const OPT_KEYS = ['speed', 'limit', 'floor', 'quality'];
-  S.opt = S.opt || {}; OPT_KEYS.forEach(k => { if (S.opt[k] != null) $(k).value = S.opt[k]; }); if (S.opt.sound === false) $('sound').checked = false;
+  S.opt = S.opt || {}; if (!S.opt.spd2) { delete S.opt.speed; S.opt.spd2 = 1; }   // 속도 단계 변경(예전 빠름=새 보통) → 한 번 초기화
+  OPT_KEYS.forEach(k => { if (S.opt[k] != null) $(k).value = S.opt[k]; }); if (S.opt.sound === false) $('sound').checked = false;
   function syncSeg() {
     document.querySelectorAll('.seg').forEach(g => { const v = $(g.dataset.for).value; g.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); });
     document.querySelector('.seg[data-for="floor"]').classList.toggle('dis', stage === 'village');
@@ -7692,6 +7700,12 @@
   }
   let pressAng = null, pressT = 0;   // 시작 버튼에 손가락이 닿은 순간의 방향(탭 지연 보정)
   goBtn.addEventListener('pointerdown', () => { if (bug && phase === 'idle') { pressAng = bug.ang; pressT = performance.now(); } });
+  // PC: 스페이스바 = 시작 (결과창이 떠 있으면 닫기). 숫자 입력 중이거나 설정창이 열려 있으면 무시
+  const spaceOk = ev => ev.code === 'Space' && !(ev.target && ev.target.tagName === 'INPUT') && !document.querySelector('.modal.show');
+  window.addEventListener('keydown', ev => { if (!spaceOk(ev)) return; ev.preventDefault(); if (ev.repeat) return;
+    if (oOn) { $('obtn').click(); return; }
+    if (!goBtn.disabled) { pressAng = null; startRound(); } });
+  window.addEventListener('keyup', ev => { if (spaceOk(ev)) ev.preventDefault(); });   // 포커스된 버튼이 스페이스로 눌리는 것 방지
   function startRound() {
     const startAng = bug ? (pressAng !== null && performance.now() - pressT < 600 ? pressAng : bug.ang) : null; pressAng = null;   // 누른 순간 방향 고정
     segCache = null; segCache = segments();
