@@ -33,6 +33,13 @@
   .stage{position:relative;width:820px;max-width:100%;scroll-margin-top:8px}
   #cv{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px #2a2530;touch-action:none}
   /* 새 판: 게임판 오른쪽 아래 둥근 버튼 */
+  .statchips{position:absolute;left:10px;top:10px;display:flex;gap:6px;padding:0;border:none;background:none;cursor:pointer;z-index:3}
+  .statchips .sc{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#e9dfc9;
+        background:rgba(18,15,21,.72);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.35);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .statchips .sc i{font-style:normal;color:var(--muted);font-weight:400;font-size:11px}
+  .statchips .sc.d-easy{color:#9ff0c4;border-color:rgba(95,211,138,.55)}
+  .statchips .sc.d-normal{color:#f7dc8f;border-color:rgba(233,196,106,.6)}
+  .statchips .sc.d-hard{color:#ff9aa4;border-color:rgba(224,85,99,.6)}
   .boardbtns{position:absolute;right:10px;bottom:10px;display:flex;gap:8px;z-index:3}
   .newboard{display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;cursor:pointer;
         background:rgba(18,15,21,.78);backdrop-filter:blur(4px);border:1px solid rgba(233,196,106,.5);color:var(--text);font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:.15s;z-index:3}
@@ -147,6 +154,7 @@
 
 <div class="wrap">
   <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="overlay"><div class="ob"><div class="ovid"><video id="ovideo" width="300" height="300" muted playsinline loop preload="auto"></video><canvas id="ocv" width="300" height="240"></canvas></div><div class="otxt"><div class="otitle" id="otitle"></div><div class="osub" id="osub"></div></div><button class="obtn" id="obtn">확인</button></div></div><div class="toast" id="toast"></div><div class="hint" id="hint"></div>
+    <button class="statchips" id="statChips" title="설정 열기"></button>
     <div class="boardbtns">
       <button class="newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg><span>랜덤 배치</span><em class="free">무료</em></button>
       <button class="newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>새 판</span><em>2</em></button>
@@ -7470,7 +7478,8 @@
     for (const e of EXITS) {
       const g = exitGeom(e);
       const inY = bug.hy > g.y0 && bug.hy < g.y1;
-      const out = e.side === 'L' ? bug.hx < g.x - BUG_R - 8 : bug.hx > g.x + BUG_R + 8;
+      // 판정: 머리가 금색 문턱(벽 중앙선)을 넘으면 즉시 그 탈출구로 확정 → "들어간 것 같은데 튀어나옴" 방지
+      const out = e.side === 'L' ? bug.hx < g.x - 2 : bug.hx > g.x + 2;
       if (inY && out) return e.n;
     }
     return 0;
@@ -7710,6 +7719,9 @@
     document.querySelectorAll('.seg').forEach(g => { const v = $(g.dataset.for).value; g.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); });
     document.querySelector('.seg[data-for="floor"]').classList.toggle('dis', stage === 'village');
     $('sndBtn').classList.toggle('off', !$('sound').checked);
+    // 게임판 왼쪽 위: 현재 설정 요약(누르면 설정 열림)
+    const opt = id => $(id).options[$(id).selectedIndex].text;
+    $('statChips').innerHTML = `<span class="sc d-${$('diff').value}">${opt('diff')}</span><span class="sc"><i>속도</i>${opt('speed')}</span><span class="sc"><i>⏱</i>${opt('limit')}</span>`;
   }
   document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
     const key = b.parentElement.dataset.for, sel = $(key); if (sel.value === b.dataset.v) return;
@@ -7718,7 +7730,7 @@
     syncSeg(); });
   $('sndBtn').onclick = () => { $('sound').checked = !$('sound').checked; S.opt.sound = $('sound').checked; save(); syncSeg(); };
   const openModal = id => { syncSeg(); $(id).classList.add('show'); };
-  $('setBtn').onclick = () => openModal('setModal'); $('helpBtn').onclick = () => openModal('helpModal');
+  $('setBtn').onclick = () => openModal('setModal'); $('statChips').onclick = () => openModal('setModal'); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
   document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
   // −/+ 길게 누르면 빠르게
