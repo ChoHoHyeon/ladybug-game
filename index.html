@@ -7664,6 +7664,32 @@
     return 0;
   }
   const _fz = new THREE.Vector3();
+  // ================= 전력 질주 이펙트: 발밑 금빛 오라 + 뒤로 흩날리는 속도선 + 불꽃 + 머리 위 '⚡전력 질주' 배지 =================
+  const sprintAura = new THREE.Mesh(new THREE.RingGeometry(18, 36, 40), new THREE.MeshBasicMaterial({ color: 0xffc64a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+  sprintAura.rotation.x = -Math.PI / 2; sprintAura.position.y = 0.8; sprintAura.visible = false; scene.add(sprintAura);
+  const sprintBadge = (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 128; const g = c.getContext('2d');
+    const draw = () => { g.clearRect(0, 0, 512, 128); g.font = '900 64px Pretendard, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineWidth = 14; g.strokeStyle = '#3a1a00'; g.strokeText('⚡전력 질주!', 256, 66);
+      const gr = g.createLinearGradient(0, 30, 0, 100); gr.addColorStop(0, '#fff6c8'); gr.addColorStop(0.5, '#ffd24a'); gr.addColorStop(1, '#ff8a1e'); g.fillStyle = gr; g.fillText('⚡전력 질주!', 256, 66); tex.needsUpdate = true; };
+    const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; draw(); if (document.fonts) document.fonts.ready.then(draw);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false })); sp.scale.set(210, 52, 1); sp.renderOrder = 10; sp.visible = false; scene.add(sp); return sp; })();
+  const streakGeo = new THREE.PlaneGeometry(1, 1); let streaks = [], streakT = 0;
+  function stepSprint(dt, now) {
+    const k = (bug && phase === 'running') ? (bug.boost || 0) : 0, on = k > 0.02;
+    sprintAura.visible = sprintBadge.visible = on;
+    if (on) { const pul = 1 + Math.sin(now * 0.025) * 0.12;
+      sprintAura.position.x = bug.x; sprintAura.position.z = bug.y; sprintAura.scale.setScalar(pul * (0.9 + k * 0.3)); sprintAura.material.opacity = 0.45 * k; sprintAura.rotation.z += dt * 6;
+      sprintBadge.position.set(bug.x, 80 + Math.sin(now * 0.012) * 5, bug.y - 26); sprintBadge.material.opacity = Math.min(1, k * 1.5); const bs = 1 + Math.sin(now * 0.02) * 0.06; sprintBadge.scale.set(210 * bs, 52 * bs, 1);
+      streakT += dt; const every = 0.035 / Math.max(0.3, k);
+      while (streakT > every) { streakT -= every; const dx = Math.cos(bug.ang), dz = Math.sin(bug.ang), side = rnd(-16, 16), len = rnd(34, 60);
+        const m = new THREE.Mesh(streakGeo, new THREE.MeshBasicMaterial({ color: Math.random() < 0.35 ? 0xffffff : 0xffcf5a, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
+        m.scale.set(len, rnd(2.4, 4.2), 1); m.rotation.order = 'YXZ'; m.rotation.set(-Math.PI / 2, -bug.ang, 0);
+        m.position.set(bug.x - dx * (22 + len / 2) - dz * side, rnd(3, 12), bug.y - dz * (22 + len / 2) + dx * side); scene.add(m);
+        streaks.push({ m, vx: -dx * 120, vz: -dz * 120, life: 0.28 }); if (Math.random() < 0.25) puff(bug.x - dx * 18, bug.y - dz * 18, 1, true); }
+    }
+    streaks.forEach(s => { s.life -= dt; s.m.position.x += s.vx * dt; s.m.position.z += s.vz * dt; s.m.material.opacity = Math.max(0, s.life / 0.28) * 0.85; s.m.scale.x *= 1 + dt * 1.5; });
+    streaks.filter(s => s.life <= 0).forEach(s => { scene.remove(s.m); s.m.material.dispose(); }); streaks = streaks.filter(s => s.life > 0);
+  }
   function syncBug() {
     if (!bug) { bugGroup.visible = false; return; }
     bugGroup.visible = !glbPending;
@@ -7986,6 +8012,7 @@
     $('stageList').querySelectorAll('.stcard:not(.lock)').forEach(b => b.onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 무대를 바꿀 수 없어요.'); return; } chooseStage(b.dataset.id); $('stageModal').classList.remove('show'); });
     openModal('stageModal'); };
   $('setBtn').onclick = $('statChips').onclick = () => openModal('setModal');
+  $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');   // (이전 수정 때 주석에 묻혀 빠졌던 연결 복구)
   const statHTML = () => `<div><i>레벨</i><b>Lv.${S.level}</b></div><div><i>코인</i><b>${coins}</b></div><div><i>플레이</i><b>${S.rec.rounds}판</b></div>`;
   const busy = what => { if (phase === 'idle') return false; setMsg(`무당벌레가 달리는 중에는 ${what}할 수 없어요.`); return true; };
   // 게임 종료: 저장 → 앱(TWA·설치형)은 창 닫기 시도 → 안 닫히는 환경(일반 브라우저 탭)은 종료 화면 표시
@@ -8176,9 +8203,9 @@
       // 어려움: 같은 방향으로만 돌되 속도가 출렁임(약 110~200°/초). 멈추거나 거꾸로 돌지 않음
       const spin = dd.spinVar ? dd.spin + 0.6 * Math.sin(spinT * 1.1) + 0.2 * Math.sin(spinT * 2.7) : dd.spin;
       if (spin) { bug.ang += dt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
-    { const show = !!bug && (phase === 'idle' || phase === 'winding') && !oOn && !(DIFF[curDiff] || {}).noArrow;   // 어려움: 유도 화살표 없음(벌레 머리 방향만 보고 타이밍) dirArrow.visible = show;
+    { const show = !!bug && (phase === 'idle' || phase === 'winding') && !oOn && !(DIFF[curDiff] || {}).noArrow; dirArrow.visible = show;   // 어려움만 유도 화살표 없음(벌레 머리 방향만 보고 타이밍)
       if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children[1].material.opacity = 0.82 + Math.sin(now * 0.006) * 0.18; } }   // 멈춘 뒤엔 미세하게만
-    syncBug();
+    syncBug(); stepSprint(dt, now);
     particles.forEach(p => { p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt; p.vy -= 420 * dt; p.m.rotation.x += p.rx * dt; p.m.rotation.z += p.rz * dt; p.life -= dt; if (p.m.position.y < 2) { p.m.position.y = 2; p.vy *= -0.35; p.vx *= 0.8; p.vz *= 0.8; } });
     particles.filter(p => p.life <= 0).forEach(p => scene.remove(p.m)); particles = particles.filter(p => p.life > 0);
     stepFx(dt); ring.material.opacity = 0.25 + Math.sin(now * 0.004) * 0.12;
