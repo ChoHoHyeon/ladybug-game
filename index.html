@@ -7501,7 +7501,7 @@
         g.setIndex(keep); });
       o.scale.setScalar(GLB_S); o.position.y = 0.95 * GLB_S;   // 발바닥이 y=0
       glbGroup.add(o); glbReady = true; glbGroup.visible = true; bodyG.visible = false; legs.forEach(L => { L.a.geometry = L.b.geometry = legGeoG; L.f.geometry = footGeoG; L.f.material = legFootMat; L.a.material = L.b.material = legMatG; });   // 3D 모델용 다리(조금 굵게, 금색 발끝)
-      keyGroup.parent.remove(keyGroup); keyGroup.position.set(0, 0.26 * GLB_S, -0.40 * GLB_S); keyGroup.rotation.set(0, 0, 0); keyGroup.scale.setScalar(1.08); glbGroup.add(keyGroup);
+      keyGroup.parent.remove(keyGroup); keyGroup.position.set(0, 1.02 * GLB_S, -0.42 * GLB_S); keyGroup.rotation.set(-0.3, 0, 0);   /* 등껍질 위로 태엽이 솟도록(살짝 뒤로 기울임) */ keyGroup.scale.setScalar(1.08); glbGroup.add(keyGroup);
       glbPending = false;
     }, undefined, () => { glbPending = false; });
   }
@@ -7582,9 +7582,9 @@
   const keyShaft = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 14, 14), keyMat); keyShaft.position.y = 7; keyShaft.castShadow = true; keyGroup.add(keyShaft);
   const keyCollar = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 2, 16), keyMat); keyCollar.position.y = 1; keyGroup.add(keyCollar);
   const keyWing = new THREE.Group(); keyWing.position.y = 14.5; keyGroup.add(keyWing);
-  const wingGeo = new THREE.TorusGeometry(8, 2.2, 12, 28); wingGeo.rotateX(Math.PI / 2);
+  const wingGeo = new THREE.TorusGeometry(7.5, 2.0, 12, 28);   // 태엽 손잡이 고리: 세로로 세움(위에서 보면 납작한 원판처럼 보이던 문제 수정)
   [-1, 1].forEach(sd => { const w = new THREE.Mesh(wingGeo, keyMat); w.position.x = sd * 9; w.castShadow = true; keyWing.add(w); });
-  const kb = new THREE.Mesh(new THREE.BoxGeometry(36, 3.6, 3.6), keyMat); kb.castShadow = true; keyWing.add(kb);
+  const kb = new THREE.Mesh(new THREE.BoxGeometry(17, 3.2, 3.2), keyMat); kb.castShadow = true; keyWing.add(kb);
   // 다리 6개 (2관절) — 월드 좌표로 직접 배치
   const legGeo = new THREE.CylinderGeometry(0.8 * BS, 0.6 * BS, 1, 6), footGeo = new THREE.SphereGeometry(0.9 * BS, 8, 6);
   const legs = [];
