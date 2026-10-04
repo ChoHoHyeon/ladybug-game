@@ -7037,10 +7037,10 @@
   const DIFF = {
     // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
     // 쉬울수록 도구(막대)가 많고 길게, 어려울수록 적고 짧게 + 고정 장애물(blocks)
-    // fixK: 탈출구 앞 문지기 길이 = 그 탈출구 통로 폭의 비율(쉬움 짧게 → 어려움 길게). 위치는 고정(아래 FIXED_LAYOUT)
-    easy:   { cols: 3, rows: 3, count: 3, len: [95, 125], jitter: 30, xp: 1,   spin: 1.05, locked: 0, fixK: 0.17 },
-    normal: { cols: 3, rows: 3, count: 3, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.21 },
-    hard:   { cols: 3, rows: 3, count: 3, len: [80, 105], jitter: 32, xp: 2,   spin: 2.7, spinVar: 1, locked: 1, fixK: 0.25 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
+    // fixHL: 고정 장애물 반길이(6개 모두 동일, 쉬움 짧게 → 어려움 길게). 위치는 고정(아래 FIXED_LAYOUT)
+    easy:   { cols: 3, rows: 3, count: 3, len: [95, 125], jitter: 30, xp: 1,   spin: 1.05, locked: 0, fixHL: 9 },
+    normal: { cols: 3, rows: 3, count: 3, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixHL: 11 },
+    hard:   { cols: 3, rows: 3, count: 3, len: [80, 105], jitter: 32, xp: 2,   spin: 2.7, spinVar: 1, locked: 1, fixHL: 13 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -7072,7 +7072,7 @@
   function boxed(s) { const h = s.t / 2; s.minx = Math.min(s.x1, s.x2) - h; s.maxx = Math.max(s.x1, s.x2) + h; s.miny = Math.min(s.y1, s.y2) - h; s.maxy = Math.max(s.y1, s.y2) + h; return s; }
   let boardWins = 0; const BOARD_WIN_LIMIT = 5;   // 같은 배치로 이긴 횟수 / 이 횟수에 도달하면 자동 새 판
   // 고정 장애물 = 탈출구 앞 '문지기': 각 탈출구 문턱에서 안쪽으로 GUARD_D 만큼 들어온 자리, 가운데→탈출구 직선 위에 직선과 수직으로 놓음
-  // (일직선 골인만 막는 짧은 장애물. 길이는 난이도별 fixK)
+  // (일직선 골인만 막는 짧은 장애물. 길이는 난이도별 fixHL)
   // 무대마다 탈출구별 위치를 다르게: 가운데→문턱 거리의 비율(0.55=출발지 쪽, 0.8=출구 쪽). 탈출구 1~6번 순서
   const GUARD_F = { casino: [0.56, 0.80, 0.68, 0.70, 0.58, 0.82], village: [0.74, 0.58, 0.80, 0.60, 0.78, 0.66] };
   const guardLayout = fr => EXITS.map((e, i) => { const g = exitGeom(e), f = fr[i], th = Math.atan2(g.cy, g.x);
@@ -7115,7 +7115,7 @@
     const d = DIFF[$('diff').value] || DIFF.normal;
     // 고정 장애물: 무대마다 위치가 정해져 있음(새 판·랜덤 배치와 무관). 가운데→각 탈출구 직선 위를 막아 '일직선 골인'을 차단
     blocks.forEach(k => k.mesh && scene.remove(k.mesh)); blocks = []; staticSegs = null; segCache = null;
-    (FIXED_LAYOUT[stage] || FIXED_LAYOUT.casino).forEach(([cx, cy, a, gap]) => { const hl = d.fixK ? Math.max(8, d.fixK * gap / 2) : (d.fixHL || 24);
+    (FIXED_LAYOUT[stage] || FIXED_LAYOUT.casino).forEach(([cx, cy, a, gap]) => { const hl = d.fixHL || 11;   // 6개 모두 같은 길이(좌우 모양 통일)
       blocks.push(boxed({ x1: cx - Math.cos(a) * hl, y1: cy - Math.sin(a) * hl, x2: cx + Math.cos(a) * hl, y2: cy + Math.sin(a) * hl, t: 24, block: 1, cx, cy, a, hl })); });
     blocks.forEach(k => buildBlockMesh(k));
     const obst = (stage === 'village' ? STONES.map(st => ({ ...st, t: STONE_T })) : []).concat(blocks);
@@ -7418,11 +7418,12 @@
       if (!vStoneMat) { const has = ASSETS.stone.indexOf('data:') === 0;
         vStoneMat = new THREE.MeshStandardMaterial({ map: loadTex(ASSETS.stone, [1.3, 0.55], false), color: has ? 0xffffff : 0x8e877a, roughness: 0.92, metalness: 0, envMapIntensity: 0.15 });
         vRockMat = new THREE.MeshStandardMaterial({ map: loadTex(ASSETS.stone, [0.5, 0.5], false), color: has ? 0xffffff : 0x9a948a, roughness: 0.9, metalness: 0, flatShading: true, envMapIntensity: 0.15 }); }
+      let sd = 7; const srnd = (a, b) => { sd = (sd * 16807) % 2147483647; return a + (sd / 2147483647) * (b - a); };   // 고정 시드 → 6개 모두 같은 모양
       const g = new THREE.Group(), L = 2 * (k.hl || 26), T = 24;
       const core = new THREE.Mesh(new THREE.BoxGeometry(L + T * 0.6, STONE_H - 6, T - 2), vStoneMat); core.position.y = (STONE_H - 6) / 2; core.castShadow = core.receiveShadow = true; g.add(core);
       const nR = Math.max(2, Math.round(L / 17)); for (let i = 0; i <= nR; i++) for (let row = 0; row < 2; row++) { const t = (i + (row ? 0.5 : 0)) / nR - 0.5; if (t > 0.5) continue;
-        const r = rnd(7.5, 10) - row * 1.5, m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), vRockMat);
-        m.scale.set(1.15, row ? 0.7 : 0.8, Math.min(1.1, T / (2 * r))); m.rotation.order = 'YXZ'; m.position.set(t * L, row ? STONE_H - 7 : 9, 0); m.rotation.set(rnd(-0.3, 0.3), rnd(-0.3, 0.3), rnd(-0.2, 0.2));
+        const r = srnd(7.5, 10) - row * 1.5, m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), vRockMat);
+        m.scale.set(1.15, row ? 0.7 : 0.8, Math.min(1.1, T / (2 * r))); m.rotation.order = 'YXZ'; m.position.set(t * L, row ? STONE_H - 7 : 9, 0); m.rotation.set(srnd(-0.3, 0.3), srnd(-0.3, 0.3), srnd(-0.2, 0.2));
         m.castShadow = m.receiveShadow = true; g.add(m); }
       g.position.set(k.cx, 0, k.cy); g.rotation.y = -k.a; scene.add(g); k.mesh = g; return;
     }
@@ -7848,7 +7849,7 @@
   function notify(title, sub) { noteQ.push([title, sub]); if (!oOn) nextNote(); }
   function nextNote() { const n = noteQ.shift(); if (n) { snd.coin(0); showOverlay(n[0], n[1], 'win', 'win', 'win', 'win'); } }
   let toastT = null;
-  function toast(t, mid) { const el = $('toast'); el.textContent = t; el.classList.toggle('mid', !!mid); el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); }
+  function toast(t, mid) { const el = $('toast'); el.textContent = t; el.classList.toggle('mid', !!mid); el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), mid ? 2000 : 2600); }
   function unlock(id) { if (S.ach[id]) return; const a = ACH.find(x => x.id === id); if (!a) return; S.ach[id] = Date.now(); coins += a.reward; toast(`🏅 업적 달성: ${a.name}  +${a.reward}코인`); snd.coin(0); }
   function gainXp(n) {
     S.xp += Math.round(n);
@@ -8107,7 +8108,7 @@
   // ================= 루프 =================
   const hint = $('hint');
   let spinT = 0;
-  const STEP = 1 / 180, BOOST_AT = 8, BOOST_X = 1.5; let acc = 0, hintT = 0, hintReset = false, gT = 0, boostOn = false;
+  const STEP = 1 / 180, BOOST_AT = 8, BOOST_X = 1.65; let acc = 0, hintT = 0, hintReset = false, gT = 0, boostOn = false;
   let perfN = 0, perfSum = 0, perfDone = false;
   let splashOff = false, splashF = 0;
   function loop(now) {
