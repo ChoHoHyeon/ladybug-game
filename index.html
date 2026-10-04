@@ -54,9 +54,7 @@
   .plaque b{display:block;font-family:"Cinzel","Pretendard",Georgia,serif;font-size:21px;letter-spacing:1px;white-space:nowrap;line-height:1.15;
         background:linear-gradient(#fff6d8,#f0cf7a 50%,#c4973f);-webkit-background-clip:text;background-clip:text;color:transparent}
   .plaque b::after{content:" ▾";font-size:11px;-webkit-text-fill-color:#e9d39a}
-  /* 정보 표시(누르는 곳 아님): 금테 없이 반투명 바탕 + 글자만 → 금테 두른 버튼과 구분 */
-  .infopill{display:flex;align-items:stretch;padding:5px 4px;white-space:nowrap;border-radius:8px;background:rgba(10,8,8,.42);cursor:default;user-select:none;-webkit-user-select:none;
-        box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+  .infopill{display:flex;align-items:stretch;padding:1px 0;border-width:9px 20px;border-image-width:9px 20px;white-space:nowrap}
   .infopill span{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px;line-height:1.2}
   .infopill span + span::before{content:"";position:absolute;left:-3px;top:50%;width:5px;height:5px;margin-top:-2.5px;transform:rotate(45deg);background:linear-gradient(135deg,#f7dc8f,#a8842e)}
   .infopill i{font-style:normal;font-size:9px;letter-spacing:2px;color:#b39b62;font-weight:700}
@@ -211,12 +209,11 @@
         <button class="plaque" id="stagePlaque" title="무대 고르기"><small id="stageLv">STAGE 1</small><b id="stageName">황금 태엽 카지노</b></button>
         <div class="prof"><span class="lv" id="lvTxt">Lv.1</span><div class="xpbar"><i id="xpFill"></i></div><span class="xptxt" id="xpTxt">0/50</span></div>
       </div>
-      <div class="infopill" id="statChips"></div>
+      <button class="hudglass infopill" id="statChips" title="눌러서 난이도·속도·시간 바꾸기"></button>
     </div>
     <div class="boardbtns">
       <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg></span><span>랜덤 배치</span><em class="free">무료</em></button>
       <button class="hudglass newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg></span><span>새 판</span><em>2</em></button>
-      <button class="hudglass newboard setb" id="setBtn2" title="설정" aria-label="설정"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.2"/></svg></span><span>설정</span></button>
     </div>
   </div>
 
@@ -6963,10 +6960,10 @@
   const DIFF = {
     // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
     // 쉬울수록 도구(막대)가 많고 길게, 어려울수록 적고 짧게 + 고정 장애물(blocks)
-    // fixHL: 고정 장애물 반길이(쉬움 짧게 → 어려움 길게). 위치는 무대마다 고정(아래 FIXED_LAYOUT)
-    easy:   { cols: 3, rows: 3, count: 6, len: [95, 125], jitter: 30, xp: 1,   spin: 0,   locked: 0, fixHL: 18 },
-    normal: { cols: 3, rows: 3, count: 5, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixHL: 26 },
-    hard:   { cols: 3, rows: 3, count: 5, len: [80, 105], jitter: 32, xp: 2,   spin: 2.6, locked: 1, fixHL: 34 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
+    // fixK: 탈출구 앞 문지기 길이 = 그 탈출구 통로 폭의 비율(쉬움 짧게 → 어려움 길게). 위치는 고정(아래 FIXED_LAYOUT)
+    easy:   { cols: 3, rows: 3, count: 6, len: [95, 125], jitter: 30, xp: 1,   spin: 0,   locked: 0, fixK: 0.34 },
+    normal: { cols: 3, rows: 3, count: 5, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.42 },
+    hard:   { cols: 3, rows: 3, count: 5, len: [80, 105], jitter: 32, xp: 2,   spin: 2.6, locked: 1, fixK: 0.5 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -6997,11 +6994,13 @@
   let segCache = null;
   function boxed(s) { const h = s.t / 2; s.minx = Math.min(s.x1, s.x2) - h; s.maxx = Math.max(s.x1, s.x2) + h; s.miny = Math.min(s.y1, s.y2) - h; s.maxy = Math.max(s.y1, s.y2) + h; return s; }
   let boardWins = 0; const BOARD_WIN_LIMIT = 5;   // 같은 배치로 이긴 횟수 / 이 횟수에 도달하면 자동 새 판
-  // 무대별 고정 장애물 자리 [x, y, 방향]: 가운데에서 6개 탈출구로 가는 직선 위, 직선에 수직으로 놓음
-  const FIXED_LAYOUT = (() => { const L = [];
-    EXITS.forEach(e => { const g = { x: e.side === 'L' ? BOARD.x : BOARD.x + BOARD.w, y: BOARD.y + BOARD.h * e.ty };
-      const th = Math.atan2(g.y, g.x), r = e.ty === 0.5 ? 165 : 172; L.push([Math.cos(th) * r, Math.sin(th) * r, th + Math.PI / 2]); });
-    return { casino: L, village: L }; })();
+  // 고정 장애물 = 탈출구 앞 '문지기': 각 탈출구 문턱에서 안쪽으로 GUARD_D 만큼 들어온 자리, 가운데→탈출구 직선 위에 직선과 수직으로 놓음
+  // (일직선 골인만 막는 짧은 장애물. 길이는 난이도별 fixK)
+  // 무대마다 탈출구별 위치를 다르게: 가운데→문턱 거리의 비율(0.55=출발지 쪽, 0.8=출구 쪽). 탈출구 1~6번 순서
+  const GUARD_F = { casino: [0.56, 0.80, 0.68, 0.70, 0.58, 0.82], village: [0.74, 0.58, 0.80, 0.60, 0.78, 0.66] };
+  const guardLayout = fr => EXITS.map((e, i) => { const g = exitGeom(e), f = fr[i], th = Math.atan2(g.cy, g.x);
+    return [g.x * f, g.cy * f, th + Math.PI / 2, g.gap]; });
+  let FIXED_LAYOUT = { casino: guardLayout(GUARD_F.casino), village: guardLayout(GUARD_F.village) };
   let blocks = [];   // 판마다 새로 놓는 고정 장애물(쇠 블록)
   function segments() { if (segCache) return segCache; if (!staticSegs) staticSegs = buildStaticSegs().map(boxed); return staticSegs.concat(blocks, bars.map(b => boxed({ ...barEnds(b), t: BAR_T, bar: 1 }))); }
   const FAR = (px, py, s) => px < s.minx - 30 || px > s.maxx + 30 || py < s.miny - 30 || py > s.maxy + 30;
@@ -7039,7 +7038,7 @@
     const d = DIFF[$('diff').value] || DIFF.normal;
     // 고정 장애물: 무대마다 위치가 정해져 있음(새 판·랜덤 배치와 무관). 가운데→각 탈출구 직선 위를 막아 '일직선 골인'을 차단
     blocks.forEach(k => k.mesh && scene.remove(k.mesh)); blocks = []; staticSegs = null; segCache = null;
-    (FIXED_LAYOUT[stage] || FIXED_LAYOUT.casino).forEach(([cx, cy, a]) => { const hl = d.fixHL || 24;
+    (FIXED_LAYOUT[stage] || FIXED_LAYOUT.casino).forEach(([cx, cy, a, gap]) => { const hl = d.fixK ? Math.max(8, d.fixK * gap / 2) : (d.fixHL || 24);
       blocks.push(boxed({ x1: cx - Math.cos(a) * hl, y1: cy - Math.sin(a) * hl, x2: cx + Math.cos(a) * hl, y2: cy + Math.sin(a) * hl, t: 24, block: 1, cx, cy, a, hl })); });
     blocks.forEach(k => buildBlockMesh(k));
     const obst = (stage === 'village' ? STONES.map(st => ({ ...st, t: STONE_T })) : []).concat(blocks);
@@ -7876,7 +7875,7 @@
       return `<button class="stcard ${open ? '' : 'lock'} ${st.id === stage ? 'on' : ''}" data-id="${st.id}" ${open ? '' : 'disabled'} style="${st.img && st.img.indexOf('data:') === 0 ? `background-image:url(${st.img})` : 'background:linear-gradient(135deg,#2a2330,#120f15)'}"><div><b>${st.name}</b><small>${open ? st.desc : `Lv.${st.lv}에 열려요`}</small></div></button>`; }).join('');
     $('stageList').querySelectorAll('.stcard:not(.lock)').forEach(b => b.onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 무대를 바꿀 수 없어요.'); return; } chooseStage(b.dataset.id); $('stageModal').classList.remove('show'); });
     openModal('stageModal'); };
-  $('setBtn').onclick = $('setBtn2').onclick = () => openModal('setModal'); $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
+  $('setBtn').onclick = $('statChips').onclick = () => openModal('setModal'); $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
   document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
   // −/+ 길게 누르면 빠르게
@@ -8056,7 +8055,8 @@
   window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(fitView, 150); });
   // 개발용 시뮬레이션 훅 (주소 뒤에 ?sim 을 붙였을 때만)
   if (location.search.indexOf('sim') >= 0) window.__lb = {
-    setDiff(v) { $('diff').value = v; curDiff = v; makeBoard(); }, bars: () => bars, stage: v => applyStage(v),
+    setDiff(v) { $('diff').value = v; curDiff = v; makeBoard(); },
+    guard(k, dif) { DIFF[dif].fixK = k; }, bars: () => bars, stage: v => applyStage(v),
     rot(b, a) { return rotateBarTo(b, a); }, ang: () => bug && bug.ang, phase: () => phase,
     play(n, ang, sd) { const keep = bug; SIM = true; segCache = null; segCache = segments(); const cnt = [0, 0, 0, 0, 0, 0, 0]; let to = 0;
       const gauss = () => Math.sqrt(-2 * Math.log(Math.random() || 1e-9)) * Math.cos(2 * Math.PI * Math.random());
