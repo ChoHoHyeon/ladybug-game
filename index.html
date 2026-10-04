@@ -255,7 +255,7 @@
   <h3>설정</h3>
   <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판이 깔려요 · 무료</small></div><div class="seg" data-for="diff">
     <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>천천히 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
-  <div class="sgroup"><div class="slabel">무당벌레 속도</div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
+  <div class="sgroup"><div class="slabel">출발 속도 <small>8초 지나면 태엽 가속 ⏩</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
   <div class="sgroup"><div class="slabel">효과음</div><div class="seg" data-for="sfx"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
@@ -7509,7 +7509,7 @@
   }
   let SIM = false;   // 배당 계산용 가상 판에서는 소리·먼지 없이 물리만
   function stepBug(dt) {
-    const spd = SIM ? 1 : parseFloat($('speed').value);
+    const spd = 1;   // 물리는 항상 같은 속도로 계산(속도 설정·가속은 '빨리감기'로 처리 → 같은 방향이면 같은 길)
     // 무조건 직진: 자유 이동 중에는 방향이 절대 바뀌지 않음 (진동은 시각 효과만)
     const segs = segments();
     const cx = Math.cos(bug.ang), cy = Math.sin(bug.ang);
@@ -7654,6 +7654,7 @@
     lose() { this.tone(330, 0, 0.35, 'triangle', 0.12, 200); this.tone(262, 0.3, 0.5, 'triangle', 0.12, 150); },
     click() { this.tone(700, 0, 0.04, 'square', 0.04); },
     exit() { this.tone(600, 0, 0.15, 'sine', 0.12, 1200); },
+    boost() { [0, 0.07, 0.14].forEach((t, i) => this.tone(500 + i * 250, t, 0.12, 'square', 0.04, 900 + i * 300)); },
   };
 
   // ================= 배경음악 (실시간 합성) =================
@@ -8011,7 +8012,7 @@
 
   // ================= 루프 =================
   const hint = $('hint');
-  const STEP = 1 / 180; let acc = 0, hintT = 0, hintReset = false;
+  const STEP = 1 / 180, BOOST_AT = 8, BOOST_X = 1.5; let acc = 0, hintT = 0, hintReset = false, gT = 0, boostOn = false;
   let perfN = 0, perfSum = 0, perfDone = false;
   let splashOff = false, splashF = 0;
   function loop(now) {
@@ -8026,13 +8027,17 @@
     if (phase === 'winding') {
       windT += dt; bug.keyRot -= dt * 22;                       // 태엽 되감기 (반대 방향, 빠르게)
       bug.shake = 0.6; bug.push = 0.2;
-      if (windT > 1.25) { phase = 'running'; tStart = performance.now(); lastT = now; acc = 0; bug.push = 0; bug.shake = 0; snd.exit(); puff(bug.x, bug.y, 10); refreshUI(); }
+      if (windT > 1.25) { phase = 'running'; tStart = performance.now(); lastT = now; acc = 0; gT = 0; boostOn = false; bug.push = 0; bug.shake = 0; snd.exit(); puff(bug.x, bug.y, 10); refreshUI(); }
     }
     if (phase === 'running') {
       // 고정 스텝(1/180초) 누적 — 프레임이 떨어져도 실제 시간대로 진행
-      let exitN = 0; acc += dt;
-      while (acc >= STEP && !exitN) { exitN = stepBug(STEP); acc -= STEP; }
-      const lim = parseInt($('limit').value), el = (now - tStart) / 1000;
+      // 빨리감기 배율 = 고른 속도 × 태엽 가속(출발 8초 뒤부터 2.5초에 걸쳐 1.5배까지 서서히)
+      const sel = parseFloat($('speed').value), real = (now - tStart) / 1000, ramp = Math.min(1, Math.max(0, (real - BOOST_AT) / 2.5)), k = ramp * ramp * (3 - 2 * ramp);
+      const scale = sel * (1 + (BOOST_X - 1) * k); bug.boost = k;
+      if (k > 0 && !boostOn) { boostOn = true; toast('⏩ 태엽 가속!'); snd.boost(); }
+      let exitN = 0; acc += dt * scale; let n = 0;
+      while (acc >= STEP && !exitN && n < 400) { exitN = stepBug(STEP); acc -= STEP; gT += STEP; n++; }
+      const lim = parseInt($('limit').value), el = gT / sel;   // 남은 시간도 같은 배율로 흐름(가속되면 시계도 빨라짐)
       if (now - hintT > 100) { hintT = now; hint.textContent = lim ? `남은 시간 ${Math.max(0, lim - el).toFixed(1)}초` : `경과 ${el.toFixed(1)}초`; }
       if (exitN) endRound(exitN, false); else if (lim && el > lim) endRound(0, true);
     } else if (phase === 'idle' && !hintReset && (hint.textContent.startsWith('남은') || hint.textContent.startsWith('경과'))) {
