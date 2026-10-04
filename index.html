@@ -57,8 +57,8 @@
   .infopill{display:flex;align-items:stretch;padding:1px 0;border-width:9px 20px;border-image-width:9px 20px;white-space:nowrap}
   .infopill span{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px;line-height:1.2}
   .infopill span + span::before{content:"";position:absolute;left:-3px;top:50%;width:5px;height:5px;margin-top:-2.5px;transform:rotate(45deg);background:linear-gradient(135deg,#f7dc8f,#a8842e)}
-  .infopill i{font-style:normal;font-size:9px;letter-spacing:2px;color:#b39b62;font-weight:700}
-  .infopill b{font-family:"Cinzel","Pretendard",Georgia,serif;font-size:14px;font-weight:700;letter-spacing:.5px;
+  .infopill i{font-style:normal;font-size:8.5px;letter-spacing:2px;color:#b39b62;font-weight:700}
+  .infopill b{font-family:"Cinzel","Pretendard",Georgia,serif;font-size:12.5px;font-weight:700;letter-spacing:.5px;
         background:linear-gradient(#fff6d8,#f0cf7a 55%,#c4973f);-webkit-background-clip:text;background-clip:text;color:transparent}
   .infopill b.d-easy{background:linear-gradient(#e6fff0,#8ee6b5 60%,#4fb985);-webkit-background-clip:text;background-clip:text}
   .infopill b.d-hard{background:linear-gradient(#ffe3e6,#ff9aa4 60%,#d65563);-webkit-background-clip:text;background-clip:text}
@@ -92,7 +92,7 @@
   #splash .sp-bar{width:150px;height:3px;margin:16px auto 0;border-radius:3px;background:rgba(233,196,106,.15);overflow:hidden}
   #splash .sp-bar i{display:block;width:40%;height:100%;background:linear-gradient(90deg,transparent,#e9c46a,transparent);animation:spb 1s linear infinite}
   @keyframes spb{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
-  @media (max-width:760px){ .boardbtns{gap:6px;left:6px;right:6px} .setb span:not(.ic){display:none} .newboard{gap:5px} .newboard .ic{width:24px;height:24px} .newboard svg{width:14px;height:14px} .newboard em{padding:2px 5px;font-size:10.5px} .plaque b{font-size:18px} .infopill b{font-size:13px} .newboard{padding:1px 0;font-size:12.5px;border-width:8px 20px;border-image-width:8px 20px} .infopill span{padding:0 6px} .infopill i{letter-spacing:1px} }
+  @media (max-width:760px){ .boardbtns{gap:6px;left:6px;right:6px} .setb span:not(.ic){display:none} .newboard{gap:5px} .newboard .ic{width:24px;height:24px} .newboard svg{width:14px;height:14px} .newboard em{padding:2px 5px;font-size:10.5px} .plaque b{font-size:18px} .infopill b{font-size:11.5px} .infopill{border-width:8px 17px;border-image-width:8px 17px} .newboard{padding:1px 0;font-size:12.5px;border-width:8px 20px;border-image-width:8px 20px} .infopill span{padding:0 6px} .infopill i{letter-spacing:1px} }
   @media (max-width:400px){ .newboard{font-size:11.5px;border-width:8px 15px;border-image-width:8px 15px;gap:4px} #shuffleBtn em{display:none} .newboard .ic{width:22px;height:22px} }
   .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
   .overlay.show{display:flex}
@@ -109,16 +109,23 @@
   /* 베팅 패널 */
   .panel{background:var(--card);border:1px solid #2c2731;border-radius:18px;padding:16px;width:350px;box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
   .stagecol{display:flex;flex-direction:column;gap:4px;min-width:0}
-  .prof{display:flex;align-items:center;gap:6px;width:min(190px,46vw);margin-left:2px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9))}
-  .prof .lv{font-family:"Cinzel","Pretendard",serif;font-size:11px;padding:1px 7px;border-radius:6px}
-  .prof .xpbar{height:5px;background:rgba(0,0,0,.6);border-color:rgba(233,196,106,.35)}
-  .prof .xptxt{font-size:10px;color:#e9d8b0}
+  .prof{display:flex;align-items:center;gap:7px;width:min(225px,54vw);margin:3px 0 0;padding:3px 10px 3px 3px;border-radius:999px;background:rgba(10,8,8,.62);box-shadow:inset 0 0 0 1px rgba(233,196,106,.22),0 2px 6px rgba(0,0,0,.4)}
+  .prof .lv{font-family:"Cinzel","Pretendard",serif;font-size:12px;padding:2px 8px;border-radius:999px}
+  .prof .xpbar{height:6px;background:rgba(0,0,0,.7);border-color:rgba(233,196,106,.4)}
+  .prof .xptxt{font-size:10.5px;font-weight:700;color:#f3e7c8}
   .lv{background:linear-gradient(#3a2a12,#22180a);border:1px solid #6b5222;color:var(--gold);font-weight:800;font-size:13px;border-radius:8px;padding:3px 9px;white-space:nowrap}
   .xpbar{flex:1;height:6px;background:#0b0a0d;border:1px solid #2c2731;border-radius:6px;overflow:hidden}
   .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a8842e,#f7dc8f);transition:width .4s}
   .xptxt{font-size:11px;color:var(--muted);white-space:nowrap}
-  .coins{font-size:38px;font-weight:800;color:var(--gold);text-align:center;margin:4px 0 0;font-family:"Cinzel","Pretendard",Georgia,serif;text-shadow:0 0 18px rgba(233,196,106,.35)}
-  .coins small{font-size:13px;color:var(--muted);font-weight:normal;margin-left:5px;font-family:inherit}
+  /* 보유 코인: 금화 아이콘 + 금빛 그라데이션 Cinzel (판 위 배당 숫자와 같은 스타일) */
+  .coins{display:flex;align-items:center;justify-content:center;gap:9px;margin:2px 0 8px;line-height:1}
+  .coins::before{content:"";width:26px;height:26px;border-radius:50%;flex:none;
+        background:radial-gradient(circle at 35% 30%,#fff3c0 0 12%,#f2cf6b 30%,#c8952f 70%,#8a6418 100%);
+        box-shadow:inset 0 0 0 2px rgba(120,80,15,.55),inset 0 0 0 5px rgba(255,236,170,.35),0 0 12px rgba(233,196,106,.45)}
+  .coins span{font-family:"Cinzel",Georgia,serif;font-size:38px;font-weight:700;letter-spacing:1.5px;
+        background:linear-gradient(#fff6d8,#f0cf7a 50%,#b8862e);-webkit-background-clip:text;background-clip:text;color:transparent;
+        filter:drop-shadow(0 0 10px rgba(233,196,106,.35))}
+  .coins small{font-size:12px;color:#b39b62;font-weight:700;letter-spacing:2px;align-self:flex-end;margin-bottom:4px}
   .keytier{font-size:11px;color:var(--muted);text-align:center;margin:0 0 10px;letter-spacing:.5px}
   .oddsinfo{font-size:12px;color:#bfe9cf;text-align:center;margin:0 0 10px;min-height:16px}
   .exits{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
@@ -149,6 +156,7 @@
   .msg.lose{color:#ff8a94;font-weight:700}
   .toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(20,16,22,.92);border:1px solid rgba(233,196,106,.6);color:var(--gold);padding:8px 16px;border-radius:12px;font-size:14px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;z-index:5}
   .toast.on{opacity:1}
+  .toast.mid{top:50%;transform:translate(-50%,-50%);font-size:24px;padding:12px 26px;border-radius:16px;border-width:1.5px;text-shadow:0 0 14px rgba(233,196,106,.6);box-shadow:0 10px 30px rgba(0,0,0,.6)}
   /* 모달(설정·게임 방법·기록) */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
   .modal.show{display:flex}
@@ -185,16 +193,18 @@
   .ach.off{opacity:.45}
   .ach em{font-style:normal;color:var(--gold);white-space:nowrap}
   @media (max-width:760px){
-    .topbar{padding:10px 12px 2px} .topbar h1{font-size:21px;letter-spacing:1px}
+    .topbar{padding:6px 12px 0} .topbar h1{font-size:21px;letter-spacing:1px}
     .tools{gap:6px} .ibtn{width:36px;height:36px}
-    .wrap{flex-direction:column;align-items:stretch;gap:10px;padding:6px 8px 24px}
+    .wrap{flex-direction:column;align-items:stretch;gap:8px;padding:6px 8px 10px}
     .stage{width:100%}
-    .panel{width:100%;padding:14px}
-    .coins{font-size:32px}
+    .panel{width:100%;padding:10px 12px 8px}
+    .coins span{font-size:31px} .coins::before{width:22px;height:22px} .coins{margin:0 0 7px}
+    .exits{margin-bottom:8px} .bet{margin-bottom:8px} .stepper,.chip.step,.chip.maxb{height:42px}
+    .msg{margin-top:5px;min-height:17px;font-size:12.5px}
     .bet{gap:6px} .chip.step{width:34px} .chip.step.five{width:38px} .chip.maxb{padding:0 10px;font-size:12px}
     .exit-btn{height:34px;font-size:12.5px}
     .exit-btn b{font-size:15px}
-    button.main{padding:17px;font-size:17px}
+    button.main{padding:14px;font-size:16.5px}
     .ob{min-width:0;width:92%;padding:12px}
     .ovid{width:min(300px,70vw)} .ovid video{width:min(300px,70vw);height:min(300px,70vw)}
   }
@@ -223,7 +233,7 @@
       <button class="hudglass infopill" id="statChips" title="눌러서 난이도·속도·시간 바꾸기"></button>
     </div>
     <div class="boardbtns">
-      <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg></span><span>랜덤 배치</span><em class="free">무료</em></button>
+      <button class="hudglass newboard" id="shuffleBtn" title="막대 방향을 무작위로 돌립니다"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle class="pip" cx="9" cy="9" r="1.3"/><circle class="pip" cx="15" cy="15" r="1.3"/><circle class="pip" cx="15" cy="9" r="1.3"/><circle class="pip" cx="9" cy="15" r="1.3"/></svg></span><span>랜덤 배치</span></button>
       <button class="hudglass newboard" id="newBoardBtn" title="핀 위치까지 새로 배치합니다"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg></span><span>새 판</span><em>2</em></button>
     </div>
   </div>
@@ -265,8 +275,8 @@
 <div class="modal" id="setModal"><div class="mbox sbox">
   <h3>설정</h3><button class="mx mclose" aria-label="닫기">✕</button>
   <div class="sgroup col"><div class="slabel">난이도 <small>바꾸면 새 판 · 무료</small></div><div class="seg" data-for="diff">
-    <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>느린 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
-  <div class="sgroup"><div class="slabel">출발 속도<small>8초 뒤 가속 ⏩</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
+    <button data-v="easy">쉬움<small>느린 회전 · XP×1</small></button><button data-v="normal">보통<small>보통 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠르고 들쭉날쭉 · XP×2</small></button></div></div>
+  <div class="sgroup"><div class="slabel">출발 속도<small>8초 뒤 전력 질주 ⚡</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간<small>넘기면 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup"><div class="slabel">효과음</div><div class="seg" data-for="sfx"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
   <div class="sgroup"><div class="slabel">배경음악</div><div class="seg" data-for="music"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
@@ -287,7 +297,7 @@
     <li><b>타이밍을 맞춰 시작!</b> 무당벌레는 시작 버튼을 누른 순간 바라보던 방향(화살표)으로 출발해 무조건 직진하고, 막히면 밀면서 조금씩 몸을 틉니다.</li>
   </ol>
   <h4>난이도</h4>
-  <p><b>쉬움</b> 무당벌레가 가만히 있고, 긴 막대 8개로 넉넉히 길을 만들 수 있어요.<br><b>보통</b> 무당벌레가 천천히 돌아요 — 원하는 방향일 때 시작! 막대 7개 + 쇠 블록 1개.<br><b>어려움</b> 더 빠르게 돌고, 짧은 막대 6개 중 2개는 못 돌리는 빨간 핀 막대, 쇠 블록 2개.</p>
+  <p>무당벌레가 제자리에서 돌아요 — 원하는 방향을 가리킬 때 시작! 누른 순간 방향 그대로 출발해요.<br><b>쉬움</b> 천천히 회전 · 긴 막대 3개 · 작은 고정 장애물<br><b>보통</b> 보통 속도로 회전 · 막대 3개<br><b>어려움</b> 빠르고 속도가 들쭉날쭉(멈추거나 거꾸로 돌진 않아요) · 짧은 막대 3개 중 1개는 못 돌리는 고정 막대</p>
   <h4>보상</h4>
   <p>맞히면 베팅 × 배당, 3연승부터 +10%. 같은 배치로 5번 이기면 새 배치로 바뀝니다. 제한시간을 넘기면 무효로 전액 환불.<br>매일 출석 보너스, 코인이 바닥나면 2시간 뒤 충전 — 레벨이 높을수록 더 많이.<br>레벨이 오르면 태엽이 구리 → 은(Lv.5) → 금(Lv.10) → 다이아(Lv.20). Lv.5에는 새 무대가 열립니다.</p>
   <h4>PC 조작</h4>
@@ -6970,9 +6980,9 @@
     // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
     // 쉬울수록 도구(막대)가 많고 길게, 어려울수록 적고 짧게 + 고정 장애물(blocks)
     // fixK: 탈출구 앞 문지기 길이 = 그 탈출구 통로 폭의 비율(쉬움 짧게 → 어려움 길게). 위치는 고정(아래 FIXED_LAYOUT)
-    easy:   { cols: 3, rows: 3, count: 6, len: [95, 125], jitter: 30, xp: 1,   spin: 0,   locked: 0, fixK: 0.17 },
-    normal: { cols: 3, rows: 3, count: 5, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.21 },
-    hard:   { cols: 3, rows: 3, count: 5, len: [80, 105], jitter: 32, xp: 2,   spin: 2.6, locked: 1, fixK: 0.25 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
+    easy:   { cols: 3, rows: 3, count: 3, len: [95, 125], jitter: 30, xp: 1,   spin: 1.05, locked: 0, fixK: 0.17 },
+    normal: { cols: 3, rows: 3, count: 3, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.21 },
+    hard:   { cols: 3, rows: 3, count: 3, len: [80, 105], jitter: 32, xp: 2,   spin: 2.7, spinVar: 1, locked: 1, fixK: 0.25 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -7260,10 +7270,12 @@
   const ring = new THREE.Mesh(new THREE.RingGeometry(20, 23, 48), new THREE.MeshBasicMaterial({ color: 0xe9c46a, transparent: true, opacity: 0.35 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.6; scene.add(ring);
   // 쉬움: 출발 방향 화살표 (바닥에 납작하게, +x 방향)
   const dirArrow = new THREE.Group(); dirArrow.visible = false; scene.add(dirArrow);
-  { const am = new THREE.MeshBasicMaterial({ color: 0xfff1b0, transparent: true, opacity: 0.8, depthWrite: false });
-    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(64, 8), am); shaft.rotation.x = -Math.PI / 2; shaft.position.x = 62; dirArrow.add(shaft);
-    const hs = new THREE.Shape(); hs.moveTo(0, -11); hs.lineTo(20, 0); hs.lineTo(0, 11); hs.closePath();
-    const head = new THREE.Mesh(new THREE.ShapeGeometry(hs), am.clone()); head.rotation.x = -Math.PI / 2; head.position.x = 94; dirArrow.add(head); }
+  { // 화살표 모양 하나(몸통+촉) → 짙은 테두리용(조금 크게, 아래) + 금색(위)
+    const arrow = (w, L, hw, hl) => { const sh = new THREE.Shape(); sh.moveTo(26, -w); sh.lineTo(26 + L, -w); sh.lineTo(26 + L, -hw); sh.lineTo(26 + L + hl, 0); sh.lineTo(26 + L, hw); sh.lineTo(26 + L, w); sh.lineTo(26, w); sh.closePath(); return new THREE.ShapeGeometry(sh); };
+    const edge = new THREE.Mesh(arrow(8.5, 78, 19, 30), new THREE.MeshBasicMaterial({ color: 0x1a1006, transparent: true, opacity: 0.85, depthWrite: false }));
+    edge.geometry.translate(-3, 0, 0); edge.rotation.x = -Math.PI / 2; dirArrow.add(edge);
+    const gold = new THREE.Mesh(arrow(5.5, 76, 15, 25), new THREE.MeshBasicMaterial({ color: 0xffcf4a, transparent: true, opacity: 1, depthWrite: false }));
+    gold.rotation.x = -Math.PI / 2; gold.position.y = 0.2; gold.renderOrder = 2; dirArrow.add(gold); }
 
   // ================= 무대 전환: 카지노(기본) ↔ 시골 돌담길(Lv.5~) =================
   // 시골 텍스처는 sRGB 변환 없이 그대로 써서 낮 햇빛처럼 밝게 보이도록
@@ -7778,7 +7790,7 @@
   function notify(title, sub) { noteQ.push([title, sub]); if (!oOn) nextNote(); }
   function nextNote() { const n = noteQ.shift(); if (n) { snd.coin(0); showOverlay(n[0], n[1], 'win', 'win', 'win', 'win'); } }
   let toastT = null;
-  function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); }
+  function toast(t, mid) { const el = $('toast'); el.textContent = t; el.classList.toggle('mid', !!mid); el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); }
   function unlock(id) { if (S.ach[id]) return; const a = ACH.find(x => x.id === id); if (!a) return; S.ach[id] = Date.now(); coins += a.reward; toast(`🏅 업적 달성: ${a.name}  +${a.reward}코인`); snd.coin(0); }
   function gainXp(n) {
     S.xp += Math.round(n);
@@ -7841,7 +7853,7 @@
   let betOdds = 0, curDiff = S.diff || 'normal';
   const msgEl = $('msg'), coinsEl = $('coins'), goBtn = $('goBtn'), betEl = $('bet'), logEl = $('log');
   const exitWrap = $('exitBtns');
-  EXITS.forEach(e => { const b = document.createElement('button'); b.className = 'exit-btn'; b.dataset.n = e.n; b.innerHTML = `${e.n}번<b>…</b>`; b.onclick = () => { if (phase !== 'idle') return; selExit = e.n; refreshUI(); }; exitWrap.appendChild(b); });
+  EXITS.forEach(e => { const b = document.createElement('button'); b.className = 'exit-btn'; b.dataset.n = e.n; b.innerHTML = `${e.n}번<b>…</b>`; b.onclick = () => { if (phase !== 'idle') return; selExit = S.lastSel = e.n; save(); refreshUI(); }; exitWrap.appendChild(b); });
   document.querySelectorAll('.chip').forEach(c => c.onclick = () => { if (phase !== 'idle') return; let v = parseInt(betEl.value) || 0; v = c.dataset.add === 'all' ? coins : c.dataset.add === 'min' ? 1 : v + parseInt(c.dataset.add); betEl.value = Math.max(1, Math.min(coins, v)); refreshUI(); });
   betEl.oninput = refreshUI; goBtn.onclick = startRound;
   function pay(cost, what) { if (coins < cost) { setMsg(`${what}에는 ${cost}코인이 필요합니다.`, 'lose'); return false; } coins -= cost; save(); return true; }
@@ -7995,7 +8007,7 @@
     if (b && b.locked) { setMsg('빨간 핀 막대는 고정돼 있어 돌릴 수 없어요.'); snd.click(); b = null; return; }
     if (!b && phase === 'idle') {   // 판의 탈출구 칸(빨간 주머니)을 눌러도 선택
       toNdc(ev); const hit = ray.intersectObjects(Object.values(pocketMeshes))[0];
-      if (hit) { selExit = hit.object.userData.exit; snd.click(); refreshUI(); return; } }
+      if (hit) { selExit = S.lastSel = hit.object.userData.exit; save(); snd.click(); refreshUI(); return; } }
     cv.setPointerCapture(ev.pointerId);
     if (b) { const p = groundPt(ev) || { x: b.px, y: b.py }; drag = { bar: b, sx: ev.clientX, sy: ev.clientY, startAng: b.ang, moved: false, grabAng: Math.atan2(p.y - b.py, p.x - b.px) }; b.hover = true; syncBar(b); }
     else if (!isPortrait()) camDrag = { sx: ev.clientX, sy: ev.clientY, yaw: camYaw, pitch: camPitch };
@@ -8020,6 +8032,7 @@
 
   // ================= 루프 =================
   const hint = $('hint');
+  let spinT = 0;
   const STEP = 1 / 180, BOOST_AT = 8, BOOST_X = 1.5; let acc = 0, hintT = 0, hintReset = false, gT = 0, boostOn = false;
   let perfN = 0, perfSum = 0, perfDone = false;
   let splashOff = false, splashF = 0;
@@ -8042,7 +8055,7 @@
       // 빨리감기 배율 = 고른 속도 × 태엽 가속(출발 8초 뒤부터 2.5초에 걸쳐 1.5배까지 서서히)
       const sel = parseFloat($('speed').value), real = (now - tStart) / 1000, ramp = Math.min(1, Math.max(0, (real - BOOST_AT) / 2.5)), k = ramp * ramp * (3 - 2 * ramp);
       const scale = sel * (1 + (BOOST_X - 1) * k); bug.boost = k;
-      if (k > 0 && !boostOn) { boostOn = true; toast('⏩ 태엽 가속!'); snd.boost(); }
+      if (k > 0 && !boostOn) { boostOn = true; toast('⚡ 전력 질주!', true); snd.boost(); }
       let exitN = 0; acc += dt * scale; let n = 0;
       while (acc >= STEP && !exitN && n < 400) { exitN = stepBug(STEP); acc -= STEP; gT += STEP; n++; }
       const lim = parseInt($('limit').value), el = gT / sel;   // 남은 시간도 같은 배율로 흐름(가속되면 시계도 빨라짐)
@@ -8052,9 +8065,12 @@
       hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = ''; }, 1500);
     }
     if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9;
-      const spin = (DIFF[curDiff] || DIFF.normal).spin; if (spin) { bug.ang += dt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
+      const dd = DIFF[curDiff] || DIFF.normal; spinT += dt;
+      // 어려움: 같은 방향으로만 돌되 속도가 출렁임(약 110~200°/초). 멈추거나 거꾸로 돌지 않음
+      const spin = dd.spinVar ? dd.spin + 0.6 * Math.sin(spinT * 1.1) + 0.2 * Math.sin(spinT * 2.7) : dd.spin;
+      if (spin) { bug.ang += dt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
     { const show = !!bug && (phase === 'idle' || phase === 'winding') && !oOn; dirArrow.visible = show;
-      if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children.forEach(m => m.material.opacity = 0.7 + Math.sin(now * 0.006) * 0.25); } }   // 멈춘 뒤엔 미세하게만
+      if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children[1].material.opacity = 0.82 + Math.sin(now * 0.006) * 0.18; } }   // 멈춘 뒤엔 미세하게만
     syncBug();
     particles.forEach(p => { p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt; p.vy -= 420 * dt; p.m.rotation.x += p.rx * dt; p.m.rotation.z += p.rz * dt; p.life -= dt; if (p.m.position.y < 2) { p.m.position.y = 2; p.vy *= -0.35; p.vx *= 0.8; p.vz *= 0.8; } });
     particles.filter(p => p.life <= 0).forEach(p => scene.remove(p.m)); particles = particles.filter(p => p.life > 0);
@@ -8080,6 +8096,7 @@
       SIM = false; bars = kb; segCache = null; bug = keep; return out; },
   };
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { EXITS.forEach(e => plates[e.n].last = ''); updateOddsUI(); });   // 글꼴 로드 후 명판 다시 그리기
+  selExit = S.lastSel || null;   // 지난번에 고른 탈출구 그대로
   fitView(); applyKeyTier(S.level); applyStage(S.stageSel && (S.stageSel === 'casino' || (S.stageSel === 'village' && S.level >= VILLAGE_LV)) ? S.stageSel : (S.level >= VILLAGE_LV ? 'village' : 'casino')); updatePlaque(); syncSeg(); makeBoard(); bug = spawnBug(); setExpr('happy'); invalidateOdds(); refreshUI(); requestAnimationFrame(loop);
   checkDaily(true); checkBroke(); setInterval(() => { checkDaily(false); checkBroke(); }, 60000);
 })();
