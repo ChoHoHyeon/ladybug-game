@@ -165,6 +165,17 @@
   .seg button.on{background:linear-gradient(#f7dc8f,#c99a32);color:#2a1a05;box-shadow:0 2px 8px rgba(233,196,106,.3)}
   .seg button.on small{color:#4a3510}
   .seg.dis{opacity:.4;pointer-events:none}
+  /* 설정창: 한 화면에 들어가게 — 이름은 왼쪽, 선택은 오른쪽 한 줄 */
+  .sbox{position:relative;padding:14px 14px 12px}
+  .sbox h3{margin:0 0 10px}
+  .mx{position:absolute;right:10px;top:9px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(233,196,106,.45);background:#141117;color:var(--gold);font-size:14px;cursor:pointer;padding:0}
+  .sbox .sgroup{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sbox .sgroup.col{display:block;margin-bottom:10px}
+  .sbox .sgroup:not(.col) .slabel{width:74px;flex:none;margin:0;font-size:12.5px;font-weight:700;line-height:1.2}
+  .sbox .sgroup:not(.col) .slabel small{display:block;margin:2px 0 0;font-size:10px;font-weight:400}
+  .sbox .sgroup:not(.col) .seg{flex:1}
+  .sbox .seg button{padding:8px 2px;font-size:12.5px}
+  .sbox .sgroup.col .seg button{padding:7px 2px}
   .help{font-size:13px;line-height:1.7;color:#cfc6b8}
   .help ol{margin:0;padding-left:20px} .help li{margin-bottom:6px}
   .help p{margin:0} .help b{color:var(--text)}
@@ -251,10 +262,17 @@
   <div id="log"></div>
 </div>
 
-<div class="modal" id="setModal"><div class="mbox">
-  <h3>설정</h3>
-  <div class="sgroup"><div class="slabel">난이도 <small>바꾸면 새 판이 깔려요 · 무료</small></div><div class="seg" data-for="diff">
-    <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>천천히 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
+<div class="modal" id="setModal"><div class="mbox sbox">
+  <h3>설정</h3><button class="mx mclose" aria-label="닫기">✕</button>
+  <div class="sgroup col"><div class="slabel">난이도 <small>바꾸면 새 판 · 무료</small></div><div class="seg" data-for="diff">
+    <button data-v="easy">쉬움<small>회전 없음 · XP×1</small></button><button data-v="normal">보통<small>느린 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠른 회전 · XP×2</small></button></div></div>
+  <div class="sgroup"><div class="slabel">출발 속도<small>8초 뒤 가속 ⏩</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
+  <div class="sgroup"><div class="slabel">제한시간<small>넘기면 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
+  <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
+  <div class="sgroup"><div class="slabel">효과음</div><div class="seg" data-for="sfx"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
+  <div class="sgroup"><div class="slabel">배경음악</div><div class="seg" data-for="music"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
+  <div class="sgroup"><div class="slabel">그래픽</div><div class="seg" data-for="quality"><button data-v="auto">자동</button><button data-v="high">높음</button><button data-v="mid">보통</button><button data-v="low">낮음</button></div></div>
+</div></div>
   <div class="sgroup"><div class="slabel">출발 속도 <small>8초 지나면 태엽 가속 ⏩</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간 <small>넘기면 무효 · 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup" id="floorGroup"><div class="slabel">판 바닥</div><div class="seg" data-for="floor"><button data-v="felt">카지노</button><button data-v="leaf">잎사귀</button><button data-v="dirt">흙판</button></div></div>
@@ -6949,7 +6967,7 @@
   const BAR_T = 18, BAR_H = 15;
   // ── Lv.5 시골 돌담길 무대: 판 안의 고정 돌담(회전 불가 장애물) ──
   const VILLAGE_LV = 5, STONE_T = 22, STONE_H = 30;
-  const STONES = [ { x1: -95, y1: -122, x2: 45, y2: -138 }, { x1: -40, y1: 136, x2: 100, y2: 120 } ];
+  const STONES = [];   // 위아래 큰 돌담 2개는 제거(판이 답답해서). 고정 장애물은 탈출구별 6개만
   let stage = 'casino', lucky = 0;   // lucky: 행운 탈출구 번호(0=없음)
   const rnd = (a, b) => a + Math.random() * (b - a);
   const $ = id => document.getElementById(id);
@@ -6961,9 +6979,9 @@
     // count: 막대 수(격자 칸 중 무작위 선택) · spin: 출발 전 제자리 회전 속도(rad/s, 시작 누른 순간 방향으로 출발) · locked: 고정 막대 수
     // 쉬울수록 도구(막대)가 많고 길게, 어려울수록 적고 짧게 + 고정 장애물(blocks)
     // fixK: 탈출구 앞 문지기 길이 = 그 탈출구 통로 폭의 비율(쉬움 짧게 → 어려움 길게). 위치는 고정(아래 FIXED_LAYOUT)
-    easy:   { cols: 3, rows: 3, count: 6, len: [95, 125], jitter: 30, xp: 1,   spin: 0,   locked: 0, fixK: 0.34 },
-    normal: { cols: 3, rows: 3, count: 5, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.42 },
-    hard:   { cols: 3, rows: 3, count: 5, len: [80, 105], jitter: 32, xp: 2,   spin: 2.6, locked: 1, fixK: 0.5 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
+    easy:   { cols: 3, rows: 3, count: 6, len: [95, 125], jitter: 30, xp: 1,   spin: 0,   locked: 0, fixK: 0.17 },
+    normal: { cols: 3, rows: 3, count: 5, len: [90, 120], jitter: 32, xp: 1.5, spin: 1.9, locked: 0, fixK: 0.21 },
+    hard:   { cols: 3, rows: 3, count: 5, len: [80, 105], jitter: 32, xp: 2,   spin: 2.6, locked: 1, fixK: 0.25 },   // luck: true 를 넣으면 🍀행운 탈출구(2배) 이벤트 부활
   };
   function barEnds(b) {
     const dx = Math.cos(b.ang), dy = Math.sin(b.ang);
@@ -7043,7 +7061,7 @@
     blocks.forEach(k => buildBlockMesh(k));
     const obst = (stage === 'village' ? STONES.map(st => ({ ...st, t: STONE_T })) : []).concat(blocks);
     const sx = BOARD.w / (d.cols + 1), sy = BOARD.h / (d.rows + 1);
-    const want = d.count - (stage === 'village' ? 1 : 0);   // 돌담길은 돌담이 있으니 막대 1개 덜
+    const want = d.count;
     const cells = []; for (let i = 1; i <= d.cols; i++) for (let j = 1; j <= d.rows; j++) cells.push([i, j]);
     for (let k = cells.length - 1; k > 0; k--) { const r = Math.floor(Math.random() * (k + 1)); [cells[k], cells[r]] = [cells[r], cells[k]]; }
     for (const [i, j] of cells) { if (bars.length >= want) break;
@@ -7850,7 +7868,7 @@
   OPT_KEYS.forEach(k => { if (S.opt[k] != null) $(k).value = S.opt[k]; }); if (S.opt.sound === false) $('sound').checked = false;
   function syncSeg() {
     document.querySelectorAll('.seg').forEach(g => { const v = $(g.dataset.for).value; g.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); });
-    document.querySelector('.seg[data-for="floor"]').classList.toggle('dis', stage === 'village');
+    $('floorGroup').style.display = stage === 'village' ? 'none' : '';   // 돌담길은 바닥이 정해져 있어 숨김
     $('sndBtn').classList.toggle('off', !$('sound').checked);
     // 게임판 왼쪽 위: 현재 설정 요약(누르면 설정 열림)
     const opt = id => $(id).options[$(id).selectedIndex].text;
