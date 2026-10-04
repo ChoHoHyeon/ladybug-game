@@ -7494,8 +7494,13 @@
       o.traverse(m => { if (m.isMesh) { const old = m.material;
         m.material = new THREE.MeshPhysicalMaterial({ map: old.map, normalMap: old.normalMap, normalScale: new THREE.Vector2(0.5, 0.5), roughnessMap: old.roughnessMap, metalnessMap: old.metalnessMap, roughness: 1.0, metalness: 1.0, clearcoat: 0.9, clearcoatRoughness: 0.08, envMapIntensity: 1.1, clippingPlanes: [clipY, clipZ], clipIntersection: true });
         m.castShadow = true; m.receiveShadow = false; } });
+      // 모델의 굳은 다리 제거: 바닥(-0.95)에서 0.45 위(-0.50) 아래에만 있는 삼각형을 지움 → 대신 움직이는 다리를 코드로 붙임
+      o.traverse(m => { if (!m.isMesh) return; const g = m.geometry, pos = g.attributes.position, idx = g.index; if (!idx) return;
+        const keep = []; for (let i = 0; i < idx.count; i += 3) { const a = idx.getX(i), b = idx.getX(i + 1), c = idx.getX(i + 2);
+          if (Math.max(pos.getY(a), pos.getY(b), pos.getY(c)) > -0.50) keep.push(a, b, c); }
+        g.setIndex(keep); });
       o.scale.setScalar(GLB_S); o.position.y = 0.95 * GLB_S;   // 발바닥이 y=0
-      glbGroup.add(o); glbReady = true; glbGroup.visible = true; bodyG.visible = false; legs.forEach(L => { L.a.visible = L.b.visible = L.f.visible = false; });
+      glbGroup.add(o); glbReady = true; glbGroup.visible = true; bodyG.visible = false; legs.forEach(L => { L.a.geometry = L.b.geometry = legGeoG; L.f.geometry = footGeoG; L.f.material = legFootMat; L.a.material = L.b.material = legMatG; });   // 3D 모델용 다리(조금 굵게, 금색 발끝)
       keyGroup.parent.remove(keyGroup); keyGroup.position.set(0, 0.26 * GLB_S, -0.40 * GLB_S); keyGroup.rotation.set(0, 0, 0); keyGroup.scale.setScalar(1.08); glbGroup.add(keyGroup);
       glbPending = false;
     }, undefined, () => { glbPending = false; });
@@ -7583,6 +7588,8 @@
   // 다리 6개 (2관절) — 월드 좌표로 직접 배치
   const legGeo = new THREE.CylinderGeometry(0.8 * BS, 0.6 * BS, 1, 6), footGeo = new THREE.SphereGeometry(0.9 * BS, 8, 6);
   const legs = [];
+  const legGeoG = new THREE.CylinderGeometry(1.35, 1.0, 1, 7), footGeoG = new THREE.SphereGeometry(1.7, 10, 8);
+  const legMatG = new THREE.MeshStandardMaterial({ color: 0x0e0b0b, roughness: 0.3, metalness: 0.4, envMapIntensity: 0.8 }), legFootMat = new THREE.MeshStandardMaterial({ color: 0xd9a93e, roughness: 0.3, metalness: 0.9, envMapIntensity: 1 });
   [[10, 1], [10, -1], [0, 1], [0, -1], [-9, 1], [-9, -1]].forEach(([ox, sd], i) => {
     const a = new THREE.Mesh(legGeo, blackMat), b = new THREE.Mesh(legGeo, blackMat), f = new THREE.Mesh(footGeo, blackMat);
     a.castShadow = b.castShadow = true; bugGroup.add(a, b, f); legs.push({ ox, sd, a, b, f, ph: (i % 2 ? Math.PI : 0) + (i >> 1) * (Math.PI * 2 / 3) });
@@ -7694,7 +7701,7 @@
     if (!bug) { bugGroup.visible = false; return; }
     bugGroup.visible = !glbPending;
     const zAmp = 1.0 + bug.push * 2.0, zb = Math.abs(Math.sin(bug.legT * 1.9)) * zAmp;
-    const sh = 0.4 + bug.shake * 1.3, jx = (Math.random() - 0.5) * sh, jz = (Math.random() - 0.5) * sh;
+    const sh = phase === 'running' ? 0.4 + bug.shake * 1.3 : bug.shake * 1.3, jx = (Math.random() - 0.5) * sh, jz = (Math.random() - 0.5) * sh;
     const baseY = 5 * BS + zb;
     bodyG.position.set(bug.x + jx, baseY, bug.y + jz); bodyG.rotation.set(0, -bug.ang, 0);
     bodyG.rotation.z = Math.sin(bug.legT * 1.9) * 0.03 * (1 + bug.push);          // 좌우로 살짝 흔들
@@ -7716,6 +7723,14 @@
     if (phase === 'running') setExpr(bug.push > 0.5 ? 'push' : (bug.contact > 0 ? 'mischief' : 'happy'));
     // 다리 (월드 좌표)
     const ca = Math.cos(bug.ang), sa = Math.sin(bug.ang);
+    if (glbReady) legs.forEach(L => {   // 3D 모델 다리: 몸 아래 옆구리에서 나와 바깥으로, 걸음에 맞춰 번갈아 앞뒤로 휘젓고 발을 듦
+      const ph = Math.sin(bug.legT * 0.9 + L.ph), lift = Math.max(0, Math.cos(bug.legT * 0.9 + L.ph));
+      const ox = L.ox * 0.8, bx = bug.x + jx + ca * ox - sa * (L.sd * 6.5), bz = bug.y + jz + sa * ox + ca * (L.sd * 6.5), by = zb * 0.8 + 11;
+      const tilt = ox > 1 ? -0.5 : ox < -1 ? 0.5 : 0, sideA = bug.ang + L.sd * (Math.PI / 2 + tilt) + ph * 0.38 * L.sd;
+      const kx = bx + Math.cos(sideA) * 9.5, kz = bz + Math.sin(sideA) * 9.5, ky = by + 2.5 + lift * 2.2;
+      const fx = kx + Math.cos(sideA) * 8.5, fz = kz + Math.sin(sideA) * 8.5, fy = 1.4 + lift * 3.2;
+      setCyl(L.a, bx, by, bz, kx, ky, kz); setCyl(L.b, kx, ky, kz, fx, fy, fz); L.f.position.set(fx, fy, fz);
+    });
     if (!glbReady) legs.forEach(L => {
       const ph = Math.sin(bug.legT * 0.9 + L.ph) + (Math.random() - 0.5) * 0.15 * (0.5 + bug.push);
       // 몸 부착점 (몸 좌표 ox, 옆 z=sd*9) → 월드
@@ -8166,7 +8181,7 @@
 
   // ================= 루프 =================
   const hint = $('hint');
-  let spinT = 0;
+  let spinT = 0, spinDt = 1 / 60;
   const STEP = 1 / 180, BOOST_AT = 8, BOOST_X = 1.65; let acc = 0, hintT = 0, hintReset = false, gT = 0, boostOn = false;
   let perfN = 0, perfSum = 0, perfDone = false;
   let splashOff = false, splashF = 0;
@@ -8199,10 +8214,12 @@
       hintReset = true; setTimeout(() => { hintReset = false; if (phase === 'idle') hint.textContent = ''; }, 1500);
     }
     if (bug && phase === 'idle') { bug.legT += dt * 3; bug.keyRot += dt * 0.5; bug.push *= 0.95; bug.shake *= 0.9;
-      const dd = DIFF[curDiff] || DIFF.normal; spinT += dt;
+      // 화면 끊김(프레임 지연) 때 한 번에 훅 건너뛰지 않도록: 프레임 간격을 부드럽게 평균내고 최대 1/30초로 제한
+      spinDt += (Math.min(dt, 1 / 30) - spinDt) * 0.25;
+      const dd = DIFF[curDiff] || DIFF.normal; spinT += spinDt;
       // 어려움: 같은 방향으로만 돌되 속도가 출렁임(약 110~200°/초). 멈추거나 거꾸로 돌지 않음
       const spin = dd.spinVar ? dd.spin + 0.6 * Math.sin(spinT * 1.1) + 0.2 * Math.sin(spinT * 2.7) : dd.spin;
-      if (spin) { bug.ang += dt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
+      if (spin) { bug.ang += spinDt * spin; updateBody(bug); } }   // 보통: 천천히 · 어려움: 빠르게 제자리 회전 → 타이밍 맞춰 시작
     { const show = !!bug && (phase === 'idle' || phase === 'winding') && !oOn && !(DIFF[curDiff] || {}).noArrow; dirArrow.visible = show;   // 어려움만 유도 화살표 없음(벌레 머리 방향만 보고 타이밍)
       if (show) { dirArrow.position.set(bug.x, 1.2, bug.y); dirArrow.rotation.y = -bug.ang; dirArrow.children[1].material.opacity = 0.82 + Math.sin(now * 0.006) * 0.18; } }   // 멈춘 뒤엔 미세하게만
     syncBug(); stepSprint(dt, now);
