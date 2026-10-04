@@ -186,11 +186,43 @@
   .sbox .sgroup:not(.col) .seg{flex:1}
   .sbox .seg button{padding:8px 2px;font-size:12.5px}
   .sbox .sgroup.col .seg button{padding:7px 2px}
-  .resetb{display:block;margin:12px auto 0;padding:7px 16px;border-radius:999px;border:1px solid rgba(224,85,99,.45);background:transparent;color:#e88a94;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer}
-  .resetb:active{transform:scale(.96)}
-  .rbox{text-align:center;width:min(340px,100%)} .rbox p{font-size:13.5px;line-height:1.7;color:#cfc6b8;margin:0} .rbox p b{color:#ff8a94}
-  .rbtns{display:flex;gap:10px;margin-top:4px} .rbtns .obtn{flex:1;margin-top:14px}
-  .rbox .rno{background:#26222b;color:#d9cfb8;box-shadow:none} .rbox .ryes{background:linear-gradient(#e86a76,#b8323f);color:#fff}
+  /* 설정 하단: 종료·초기화 (금테 버튼 한 줄) */
+  .sysrow{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(233,196,106,.14)}
+  .sysb{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:13px;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:800;letter-spacing:.5px;
+        border:1px solid transparent;background:linear-gradient(#211b17,#120e0b) padding-box,linear-gradient(135deg,#f7dc8f,#8a6418 50%,#f0cf7a) border-box;color:#f3e2b3;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 4px 12px rgba(0,0,0,.4)}
+  .sysb svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .sysb.danger{background:linear-gradient(#2a1316,#140a0b) padding-box,linear-gradient(135deg,#ff9aa4,#7a1f28 50%,#e86a76) border-box;color:#ffb3ba}
+  .sysb:active{transform:scale(.97)}
+  /* 확인 대화상자: 금박 테두리 + 메달 아이콘 */
+  .cbox{position:relative;text-align:center;width:min(330px,100%);padding:44px 20px 18px;margin-top:30px;overflow:visible;
+        border:1.5px solid transparent;background:radial-gradient(120% 70% at 50% 0%,#2b2218,#141015 60%) padding-box,linear-gradient(160deg,#f7dc8f,#7a5a1c 45%,#f0cf7a 70%,#7a5a1c) border-box;
+        box-shadow:0 30px 70px rgba(0,0,0,.7),inset 0 0 0 4px rgba(10,8,8,.5),inset 0 0 0 5px rgba(233,196,106,.18)}
+  .cbox .medal{position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:68px;height:68px;border-radius:50%;display:grid;place-items:center;
+        background:radial-gradient(circle at 35% 30%,#fff3c0 0 10%,#f2cf6b 32%,#b8862e 72%,#6e4f15);box-shadow:0 8px 20px rgba(0,0,0,.6),inset 0 0 0 3px rgba(90,60,10,.5),inset 0 0 0 7px rgba(255,236,170,.25)}
+  .cbox .medal svg{width:30px;height:30px;fill:none;stroke:#3a2608;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+  .cbox.danger .medal{background:radial-gradient(circle at 35% 30%,#ffd9dc 0 10%,#ec7a85 32%,#a52a36 72%,#5e1018)} .cbox.danger .medal svg{stroke:#fff}
+  .cbox h3{font-family:"Cinzel","Pretendard",Georgia,serif;font-size:20px;margin:0 0 8px;background:linear-gradient(#fff6d8,#f0cf7a 55%,#c4973f);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .cbox .cdesc{font-size:13px;line-height:1.65;color:#cfc6b8;margin:0 0 12px}
+  .cbox .cstats{display:flex;justify-content:center;gap:0;margin:0 0 6px;border-radius:12px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(233,196,106,.15)}
+  .cbox .cstats div{flex:1;padding:8px 4px} .cbox .cstats div + div{border-left:1px solid rgba(233,196,106,.12)}
+  .cbox .cstats i{display:block;font-style:normal;font-size:10px;letter-spacing:1.5px;color:#a8946a} .cbox .cstats b{font-family:"Cinzel","Pretendard",serif;font-size:16px;color:#f0cf7a}
+  .cbox.danger .cstats b{color:#ff9aa4;text-decoration:line-through;text-decoration-thickness:1.5px}
+  .cbtns{display:flex;gap:10px;margin-top:14px} .cbtns button{flex:1;height:46px;border-radius:13px;border:none;font-family:inherit;font-size:14.5px;font-weight:800;cursor:pointer;letter-spacing:.5px}
+  .cbtns .cno{background:#25202a;color:#d9cfb8;box-shadow:inset 0 0 0 1px rgba(233,196,106,.25)}
+  .cbtns .cyes{background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;box-shadow:0 6px 16px rgba(233,196,106,.25)}
+  /* 초기화는 꾹 눌러야 실행: 누르는 동안 붉은 게이지가 참 */
+  .cbtns .hold{position:relative;overflow:hidden;background:#3a1418;color:#ffd0d5;box-shadow:inset 0 0 0 1px rgba(255,140,150,.5);touch-action:none;user-select:none;-webkit-user-select:none}
+  .cbtns .hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#b8323f,#ec6a76);pointer-events:none}
+  .cbtns .hold span{position:relative}
+  .chint{font-size:11px;color:#8f887e;margin-top:8px}
+  /* 종료 화면 */
+  #byeScreen{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;
+        background:radial-gradient(900px 600px at 50% 40%,#1d1720,#0b0a0d 70%)}
+  #byeScreen.show{display:flex}
+  #byeScreen .sp-t{font-family:"Cinzel",Georgia,serif;font-size:32px;font-weight:700;letter-spacing:3px;background:linear-gradient(#fff2c4,#e9c46a 50%,#a8842e);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #byeScreen p{color:#cfc6b8;font-size:14px;line-height:1.7;margin:14px 0 22px}
+  #byeScreen button{padding:13px 34px;border:none;border-radius:14px;background:linear-gradient(#f7dc8f,#d3a53a 60%,#a8842e);color:#2a1a05;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
   .help{font-size:13px;line-height:1.7;color:#cfc6b8}
   .help ol{margin:0;padding-left:20px} .help li{margin-bottom:6px}
   .help p{margin:0} .help b{color:var(--text)}
@@ -218,6 +250,7 @@
 </style>
 </head>
 <body>
+<div id="byeScreen"><div><div class="sp-t">See you!</div><p id="byeTxt"></p><button id="byeBack">다시 플레이</button></div></div>
 <div id="splash"><div><div class="sp-t">LadyBug <i>Game</i></div><div class="sp-bar"><i></i></div></div></div>
 <script>setTimeout(function(){var s=document.getElementById('splash');if(s)s.className='hide';},12000);</script>
 <header class="topbar">
@@ -288,13 +321,24 @@
   <div class="sgroup"><div class="slabel">효과음</div><div class="seg" data-for="sfx"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
   <div class="sgroup"><div class="slabel">배경음악</div><div class="seg" data-for="music"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
   <div class="sgroup"><div class="slabel">그래픽</div><div class="seg" data-for="quality"><button data-v="auto">자동</button><button data-v="high">높음</button><button data-v="mid">보통</button><button data-v="low">낮음</button></div></div>
-  <button class="resetb" id="resetBtn">↺ 게임 초기화</button>
+  <div class="sysrow"><button class="sysb" id="quitBtn"><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>게임 종료</button><button class="sysb danger" id="resetBtn"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>초기화</button></div>
 </div></div>
 
-<div class="modal" id="resetModal"><div class="mbox rbox">
+<div class="modal" id="quitModal"><div class="mbox cbox">
+  <div class="medal"><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></div>
+  <h3>게임을 종료할까요?</h3>
+  <p class="cdesc">진행 상황은 자동으로 저장돼요.<br>다음에 이어서 할 수 있어요.</p>
+  <div class="cstats" id="quitStats"></div>
+  <div class="cbtns"><button class="cno mclose">계속하기</button><button class="cyes" id="quitYes">종료</button></div>
+</div></div>
+
+<div class="modal" id="resetModal"><div class="mbox cbox danger">
+  <div class="medal"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg></div>
   <h3>정말 초기화할까요?</h3>
-  <p>코인 · 레벨 · 경험치 · 기록 · 업적 · 열린 무대 · 설정이<br><b>모두 처음 상태로 지워져요.</b><br>되돌릴 수 없어요.</p>
-  <div class="rbtns"><button class="obtn rno mclose">취소</button><button class="obtn ryes" id="resetYes">초기화</button></div>
+  <p class="cdesc">레벨 · 코인 · 기록 · 업적 · 열린 무대 · 설정이<br><b style="color:#ff9aa4">모두 처음으로 돌아가고, 되돌릴 수 없어요.</b></p>
+  <div class="cstats" id="resetStats"></div>
+  <div class="cbtns"><button class="cno mclose">취소</button><button class="hold" id="resetYes"><i></i><span>꾹 눌러 초기화</span></button></div>
+  <div class="chint">실수 방지를 위해 버튼을 1.5초 동안 누르고 있어야 해요</div>
 </div></div>
 
 <div class="modal" id="stageModal"><div class="mbox">
@@ -7911,8 +7955,22 @@
     $('stageList').querySelectorAll('.stcard:not(.lock)').forEach(b => b.onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 무대를 바꿀 수 없어요.'); return; } chooseStage(b.dataset.id); $('stageModal').classList.remove('show'); });
     openModal('stageModal'); };
   $('setBtn').onclick = $('statChips').onclick = () => openModal('setModal');
-  $('resetBtn').onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 초기화할 수 없어요.'); return; } $('setModal').classList.remove('show'); openModal('resetModal'); };
-  $('resetYes').onclick = () => { RESETTING = true; try { localStorage.removeItem(SAVE_KEY); } catch (e) {} location.reload(); };   // 한 번 더 확인한 뒤에만 실제로 지움 $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
+  const statHTML = () => `<div><i>레벨</i><b>Lv.${S.level}</b></div><div><i>코인</i><b>${coins}</b></div><div><i>플레이</i><b>${S.rec.rounds}판</b></div>`;
+  const busy = what => { if (phase === 'idle') return false; setMsg(`무당벌레가 달리는 중에는 ${what}할 수 없어요.`); return true; };
+  // 게임 종료: 저장 → 앱(TWA·설치형)은 창 닫기 시도 → 안 닫히는 환경(일반 브라우저 탭)은 종료 화면 표시
+  $('quitBtn').onclick = () => { if (busy('종료')) return; $('quitStats').innerHTML = statHTML(); $('setModal').classList.remove('show'); openModal('quitModal'); };
+  $('quitYes').onclick = () => { save(); music.stop(); if (AC) AC.suspend(); $('quitModal').classList.remove('show');
+    $('byeTxt').innerHTML = `오늘도 즐거우셨나요?<br>Lv.${S.level} · ${coins}코인 — 진행 상황은 저장됐어요.`; $('byeScreen').classList.add('show');
+    try { window.close(); } catch (e) {} };   // 닫을 수 없는 환경이면 종료 화면이 남음(음악·소리 멈춤)
+  $('byeBack').onclick = () => { $('byeScreen').classList.remove('show'); if (AC) AC.resume(); music.sync(); };
+  // 초기화: 확인창 + 1.5초 꾹 누르기(게이지)로만 실행
+  $('resetBtn').onclick = () => { if (busy('초기화')) return; $('resetStats').innerHTML = statHTML(); $('setModal').classList.remove('show'); openModal('resetModal'); };
+  { const hb = $('resetYes'), bar = hb.querySelector('i'), lab = hb.querySelector('span'); let t0 = 0, raf = 0;
+    const stop = () => { cancelAnimationFrame(raf); t0 = 0; bar.style.transition = 'width .25s'; bar.style.width = '0'; lab.textContent = '꾹 눌러 초기화'; };
+    const tick = () => { const k = Math.min(1, (performance.now() - t0) / 1500); bar.style.width = (k * 100) + '%'; if (k < 1) { raf = requestAnimationFrame(tick); return; }
+      lab.textContent = '초기화 중…'; RESETTING = true; try { localStorage.removeItem(SAVE_KEY); } catch (e) {} setTimeout(() => location.reload(), 250); };
+    hb.addEventListener('pointerdown', ev => { ev.preventDefault(); if (RESETTING) return; bar.style.transition = 'none'; t0 = performance.now(); lab.textContent = '계속 누르세요…'; snd.click(); tick(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => hb.addEventListener(e, () => { if (!RESETTING && t0) stop(); })); }
   document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
   // −/+ 길게 누르면 빠르게
