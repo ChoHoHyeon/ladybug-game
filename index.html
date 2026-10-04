@@ -94,10 +94,12 @@
   @keyframes spb{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
   @media (max-width:760px){ .boardbtns{gap:6px;left:6px;right:6px} .setb span:not(.ic){display:none} .newboard{gap:5px} .newboard .ic{width:24px;height:24px} .newboard svg{width:14px;height:14px} .newboard em{padding:2px 5px;font-size:10.5px} .plaque b{font-size:18px} .infopill b{font-size:11.5px} .infopill{border-width:8px 17px;border-image-width:8px 17px} .newboard{padding:1px 0;font-size:12.5px;border-width:8px 20px;border-image-width:8px 20px} .infopill span{padding:0 6px} .infopill i{letter-spacing:1px} }
   @media (max-width:400px){ .newboard{font-size:11.5px;border-width:8px 15px;border-image-width:8px 15px;gap:4px} #shuffleBtn em{display:none} .newboard .ic{width:22px;height:22px} }
+  html,body{overflow-x:hidden}
+  @media (max-width:380px){ .topbar h1{font-size:18px !important;letter-spacing:.5px !important} .tools{gap:4px !important} .ibtn{width:33px !important;height:33px !important} .ibtn svg{width:18px;height:18px} }
   .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:4}
   .overlay.show{display:flex}
   .ob{background:rgba(20,16,22,.86);border:1px solid rgba(233,196,106,.45);border-radius:18px;padding:14px 22px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);min-width:320px}
-  .ob canvas{display:block;margin:0 auto}
+  .ob canvas{display:block;margin:0 auto;width:100%;height:auto}   /* 고해상도 캔버스가 실제 크기(750px)로 튀어나와 가로 스크롤 생기던 문제 */
   .ovid{position:relative;width:300px;margin:0 auto}
   .ovid video{display:none;width:300px;height:300px;border-radius:14px;object-fit:cover;background:#111}
   .ovid.hasvid video{display:block} .ovid.hasvid canvas{display:none}
@@ -184,6 +186,11 @@
   .sbox .sgroup:not(.col) .seg{flex:1}
   .sbox .seg button{padding:8px 2px;font-size:12.5px}
   .sbox .sgroup.col .seg button{padding:7px 2px}
+  .resetb{display:block;margin:12px auto 0;padding:7px 16px;border-radius:999px;border:1px solid rgba(224,85,99,.45);background:transparent;color:#e88a94;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer}
+  .resetb:active{transform:scale(.96)}
+  .rbox{text-align:center;width:min(340px,100%)} .rbox p{font-size:13.5px;line-height:1.7;color:#cfc6b8;margin:0} .rbox p b{color:#ff8a94}
+  .rbtns{display:flex;gap:10px;margin-top:4px} .rbtns .obtn{flex:1;margin-top:14px}
+  .rbox .rno{background:#26222b;color:#d9cfb8;box-shadow:none} .rbox .ryes{background:linear-gradient(#e86a76,#b8323f);color:#fff}
   .help{font-size:13px;line-height:1.7;color:#cfc6b8}
   .help ol{margin:0;padding-left:20px} .help li{margin-bottom:6px}
   .help p{margin:0} .help b{color:var(--text)}
@@ -276,11 +283,18 @@
   <h3>설정</h3><button class="mx mclose" aria-label="닫기">✕</button>
   <div class="sgroup col"><div class="slabel">난이도 <small>바꾸면 새 판 · 무료</small></div><div class="seg" data-for="diff">
     <button data-v="easy">쉬움<small>느린 회전 · XP×1</small></button><button data-v="normal">보통<small>보통 회전 · XP×1.5</small></button><button data-v="hard">어려움<small>빠르고 들쭉날쭉 · XP×2</small></button></div></div>
-  <div class="sgroup"><div class="slabel">출발 속도<small>8초 뒤 전력 질주 ⚡</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
+  <div class="sgroup"><div class="slabel">출발 속도<small>8초 뒤 질주 ⚡</small></div><div class="seg" data-for="speed"><button data-v="1">느림</button><button data-v="1.4">보통</button><button data-v="1.8">빠름</button></div></div>
   <div class="sgroup"><div class="slabel">제한시간<small>넘기면 환불</small></div><div class="seg" data-for="limit"><button data-v="30">30초</button><button data-v="45">45초</button><button data-v="60">60초</button></div></div>
   <div class="sgroup"><div class="slabel">효과음</div><div class="seg" data-for="sfx"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
   <div class="sgroup"><div class="slabel">배경음악</div><div class="seg" data-for="music"><button data-v="on">켜기</button><button data-v="off">끄기</button></div></div>
   <div class="sgroup"><div class="slabel">그래픽</div><div class="seg" data-for="quality"><button data-v="auto">자동</button><button data-v="high">높음</button><button data-v="mid">보통</button><button data-v="low">낮음</button></div></div>
+  <button class="resetb" id="resetBtn">↺ 게임 초기화</button>
+</div></div>
+
+<div class="modal" id="resetModal"><div class="mbox rbox">
+  <h3>정말 초기화할까요?</h3>
+  <p>코인 · 레벨 · 경험치 · 기록 · 업적 · 열린 무대 · 설정이<br><b>모두 처음 상태로 지워져요.</b><br>되돌릴 수 없어요.</p>
+  <div class="rbtns"><button class="obtn rno mclose">취소</button><button class="obtn ryes" id="resetYes">초기화</button></div>
 </div></div>
 
 <div class="modal" id="stageModal"><div class="mbox">
@@ -7749,7 +7763,7 @@
   // ================= 게임 상태 =================
   let coins = 0, selExit = null, betAmt = 1, phase = 'idle', windT = 0, tStart = 0, lastT = 0, lastExit = 0, particles = [];
   // ── 저장 (이 기기에 자동 저장) ──
-  const SAVE_KEY = 'ladybug_save_v1';
+  const SAVE_KEY = 'ladybug_save_v1'; let RESETTING = false;
   let S = { coins: 20, xp: 0, level: 1, lastDay: '', streakDays: 0, winStreak: 0, brokeAt: 0, diff: 'normal',
             rec: { maxCoins: 20, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, ach: {} };
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(S, o); S.rec = Object.assign({ maxCoins: 0, bestOdds: 0, bestWin: 0, bestStreak: 0, rounds: 0, wins: 0 }, o.rec || {}); S.ach = o.ach || {}; } } catch (e) {}
@@ -7762,7 +7776,7 @@
     const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
     if (hex !== '980af249c444d6f8c12d39eab7e5ce175762ad8513874160e03c470db0cedd85') return;
     coins = S.coins = Math.min(99999, +m[1]); S.brokeAt = 0; save(); if (typeof refreshUI === 'function') refreshUI(); })();
-  function save() { S.coins = coins; S.rec.maxCoins = Math.max(S.rec.maxCoins, coins); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+  function save() { if (RESETTING) return; S.coins = coins; S.rec.maxCoins = Math.max(S.rec.maxCoins, coins); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
   const dayStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   // ── 레벨 ──
   // 레벨 곡선: Lv1→2 는 3~5판, 이후 25XP씩 늘어남 (Lv5 ≈ 25판, Lv10 ≈ 100판)
@@ -7896,7 +7910,9 @@
       return `<button class="stcard ${open ? '' : 'lock'} ${st.id === stage ? 'on' : ''}" data-id="${st.id}" ${open ? '' : 'disabled'} style="${st.img && st.img.indexOf('data:') === 0 ? `background-image:url(${st.img})` : 'background:linear-gradient(135deg,#2a2330,#120f15)'}"><div><b>${st.name}</b><small>${open ? st.desc : `Lv.${st.lv}에 열려요`}</small></div></button>`; }).join('');
     $('stageList').querySelectorAll('.stcard:not(.lock)').forEach(b => b.onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 무대를 바꿀 수 없어요.'); return; } chooseStage(b.dataset.id); $('stageModal').classList.remove('show'); });
     openModal('stageModal'); };
-  $('setBtn').onclick = $('statChips').onclick = () => openModal('setModal'); $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
+  $('setBtn').onclick = $('statChips').onclick = () => openModal('setModal');
+  $('resetBtn').onclick = () => { if (phase !== 'idle') { setMsg('무당벌레가 달리는 중에는 초기화할 수 없어요.'); return; } $('setModal').classList.remove('show'); openModal('resetModal'); };
+  $('resetYes').onclick = () => { RESETTING = true; try { localStorage.removeItem(SAVE_KEY); } catch (e) {} location.reload(); };   // 한 번 더 확인한 뒤에만 실제로 지움 $('music').onchange = () => music.sync(); syncSeg(); $('helpBtn').onclick = () => openModal('helpModal');
   document.querySelectorAll('.mclose').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('show'));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', ev => { if (ev.target === m) m.classList.remove('show'); }));
   // −/+ 길게 누르면 빠르게
